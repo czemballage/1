@@ -1,607 +1,518 @@
-<!DOCTYPE html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-    <title>CZ Emballage - صناديق كرتونية عالية الجودة</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Pacifico&family=Cairo:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
-      rel="stylesheet"
-    />
-    <style>
-      :where([class^="ri-"])::before { content: "\f3c2"; }
-      body {
-        font-family: 'Cairo', sans-serif;
-        -webkit-tap-highlight-color: transparent;
-        overscroll-behavior-y: none;
-      }
-      @media (max-width: 768px) {
-        .container {
-          padding-left: 1rem;
-          padding-right: 1rem;
-        }
-        input, textarea {
-          font-size: 16px !important;
-        }
-      }
-    </style>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: "#E31E24",
-              secondary: "#1A1A1A",
-            },
-            borderRadius: {
-              none: "0px",
-              sm: "4px",
-              DEFAULT: "8px",
-              md: "12px",
-              lg: "16px",
-              xl: "20px",
-              "2xl": "24px",
-              "3xl": "32px",
-              full: "9999px",
-              button: "8px",
-            },
-          },
-        },
-      };
-    </script>
-  </head>
-  <body class="bg-white">
-    <header class="fixed w-full top-0 z-50 bg-secondary shadow-lg">
-      <nav class="container mx-auto px-6 py-4">
-        <div class="flex items-center justify-between">
-          <div class="text-3xl font-['Pacifico'] text-primary">
-            CZ Emballage
-          </div>
-          <div class="hidden md:flex items-center space-x-8 space-x-reverse">
-            <a
-              href="#home"
-              class="text-white hover:text-primary transition-colors"
-              >الرئيسية</a
-            >
-            <a
-              href="#about"
-              class="text-white hover:text-primary transition-colors"
-              >من نحن</a
-            >
-            <a
-              href="#products"
-              class="text-white hover:text-primary transition-colors"
-              >المنتجات</a
-            >
-            <a
-              href="#services"
-              class="text-white hover:text-primary transition-colors"
-              >الخدمات</a
-            >
-            <a
-              href="#gallery"
-              class="text-white hover:text-primary transition-colors"
-              >معرض الصور</a
-            >
-            <a
-              href="#contact"
-              class="text-white hover:text-primary transition-colors"
-              >اتصل بنا</a
-            >
-          </div>
-          <button class="md:hidden text-white" id="mobile-menu-button">
-            <i class="ri-menu-line ri-2x"></i>
-          </button>
-        </div>
-      </nav>
-      <div class="hidden md:hidden bg-secondary" id="mobile-menu">
-        <div class="px-4 py-2 space-y-2">
-          <a
-            href="#home"
-            class="block text-white hover:text-primary transition-colors py-2"
-            >الرئيسية</a
-          >
-          <a
-            href="#about"
-            class="block text-white hover:text-primary transition-colors py-2"
-            >من نحن</a
-          >
-          <a
-            href="#products"
-            class="block text-white hover:text-primary transition-colors py-2"
-            >المنتجات</a
-          >
-          <a
-            href="#services"
-            class="block text-white hover:text-primary transition-colors py-2"
-            >الخدمات</a
-          >
-          <a
-            href="#gallery"
-            class="block text-white hover:text-primary transition-colors py-2"
-            >معرض الصور</a
-          >
-          <a
-            href="#contact"
-            class="block text-white hover:text-primary transition-colors py-2"
-            >اتصل بنا</a
-          >
-        </div>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>CZ Emballage - صناديق كرتونية عالية الجودة</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+font-family: 'Cairo', sans-serif;
+-webkit-tap-highlight-color: transparent;
+overscroll-behavior-y: none;
+}
+@media (max-width: 768px) {
+.container {
+padding-left: 1rem;
+padding-right: 1rem;
+}
+input, textarea {
+font-size: 16px !important;
+}
+}
+:root {
+  --primary-color: #E31E24;
+  --secondary-color: #1A1A1A;
+}
+</style>
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+primary: '#E31E24',
+secondary: '#1A1A1A'
+},
+borderRadius: {
+'none': '0px',
+'sm': '4px',
+DEFAULT: '8px',
+'md': '12px',
+'lg': '16px',
+'xl': '20px',
+'2xl': '24px',
+'3xl': '32px',
+'full': '9999px',
+'button': '8px'
+}
+}
+}
+}
+</script>
+</head>
+<body class="bg-white">
+<header class="fixed w-full top-0 z-50 bg-secondary shadow-lg">
+<nav class="container mx-auto px-6 py-4">
+<div class="flex items-center justify-between">
+<div class="text-3xl font-['Pacifico'] text-primary">CZ Emballage</div>
+<div class="hidden md:flex items-center space-x-8 space-x-reverse">
+<a href="#home" class="text-white hover:text-primary transition-colors">الرئيسية</a>
+<a href="#about" class="text-white hover:text-primary transition-colors">من نحن</a>
+<a href="#products" class="text-white hover:text-primary transition-colors">المنتجات</a>
+<a href="#services" class="text-white hover:text-primary transition-colors">الخدمات</a>
+<a href="#gallery" class="text-white hover:text-primary transition-colors">معرض الصور</a>
+<a href="#contact" class="text-white hover:text-primary transition-colors">اتصل بنا</a>
+</div>
+<button class="md:hidden text-white" id="mobile-menu-button">
+<i class="ri-menu-line ri-2x"></i>
+</button>
+</div>
+</nav>
+<div class="hidden md:hidden bg-secondary" id="mobile-menu">
+<div class="px-4 py-2 space-y-2">
+<a href="#home" class="block text-white hover:text-primary transition-colors py-2">الرئيسية</a>
+<a href="#about" class="block text-white hover:text-primary transition-colors py-2">من نحن</a>
+<a href="#products" class="block text-white hover:text-primary transition-colors py-2">المنتجات</a>
+<a href="#services" class="block text-white hover:text-primary transition-colors py-2">الخدمات</a>
+<a href="#gallery" class="block text-white hover:text-primary transition-colors py-2">معرض الصور</a>
+<a href="#contact" class="block text-white hover:text-primary transition-colors py-2">اتصل بنا</a>
+</div>
+</div>
+</header>
+<main class="pt-20">
+<section id="home" class="relative h-screen bg-cover bg-center fade-in" style="background-image: url('https://public.readdy.ai/ai/img_res/21876cdcd8bf4c03cc66c80632d8e0e8.jpg')">
+<div class="absolute inset-0 bg-black bg-opacity-50"></div>
+<div class="container mx-auto px-6 relative h-full flex items-center">
+<div class="text-white max-w-2xl">
+<h1 class="text-5xl font-bold mb-6">حلول التغليف المبتكرة</h1>
+<p class="text-xl mb-8">نقدم أفضل الحلول في مجال الصناديق الكرتونية بجودة عالية وتصاميم مبتكرة تلبي احتياجات عملائنا</p>
+<button class="bg-primary text-white px-8 py-3 !rounded-button hover:bg-opacity-90 transition-colors btn-primary">اطلب الآن</button>
+</div>
+</div>
+</section>
+<section id="products" class="py-20 bg-gradient-to-b from-gray-50 to-white">
+<div class="container mx-auto px-6">
+<div class="mb-12 rounded-xl overflow-hidden shadow-xl max-w-2xl mx-auto fade-in relative">
+  <div class="video-carousel">
+    <div class="relative pb-[56.25%] h-0">
+      <div class="video-slide active">
+        <iframe 
+          class="absolute top-0 left-0 w-full h-full"
+          src="https://www.youtube.com/embed/3lzsx-17EnQ" 
+          title="عرض صناديق الكرتون"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
       </div>
-    </header>
-    <main class="pt-20">
-      <section
-        id="home"
-        class="relative h-screen bg-cover bg-center"
-        style="background-image: url('https://public.readdy.ai/ai/img_res/21876cdcd8bf4c03cc66c80632d8e0e8.jpg')"
-      >
-        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-        <div class="container mx-auto px-6 relative h-full flex items-center">
-          <div class="text-white max-w-2xl">
-            <h1 class="text-5xl font-bold mb-6">حلول التغليف المبتكرة</h1>
-            <p class="text-xl mb-8">
-              نقدم أفضل الحلول في مجال الصناديق الكرتونية بجودة عالية وتصاميم
-              مبتكرة تلبي احتياجات عملائنا
-            </p>
-            <button
-              class="bg-primary text-white px-8 py-3 !rounded-button hover:bg-opacity-90 transition-colors"
-            >
-              اطلب الآن
-            </button>
-          </div>
-        </div>
-      </section>
-      <section id="products" class="py-20 bg-gray-50">
-        <div class="container mx-auto px-6">
-          <h2 class="text-4xl font-bold text-center mb-12">منتجاتنا</h2>
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8"
-          >
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-              <img
-                src="https://public.readdy.ai/ai/img_res/75bef57c18ae3de5f46d08efe954b7c2.jpg"
-                class="w-full h-48 object-cover"
-                alt="صندوق كرتوني"
-              />
-              <div class="p-6">
-                <h3 class="text-xl font-bold mb-2">صناديق كرتونية قياسية</h3>
-                <p class="text-gray-600 mb-4">
-                  صناديق متينة ومثالية للشحن والتخزين
-                </p>
-                <button
-                  class="bg-primary text-white px-6 py-2 !rounded-button hover:bg-opacity-90 transition-colors"
-                >
-                  المزيد
-                </button>
-              </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-              <img
-                src="https://public.readdy.ai/ai/img_res/5d46358473370088064f7a1290ac3d55.jpg"
-                class="w-full h-48 object-cover"
-                alt="صندوق مخصص"
-              />
-              <div class="p-6">
-                <h3 class="text-xl font-bold mb-2">صناديق مخصصة</h3>
-                <p class="text-gray-600 mb-4">تصميم وطباعة حسب طلب العميل</p>
-                <button
-                  class="bg-primary text-white px-6 py-2 !rounded-button hover:bg-opacity-90 transition-colors"
-                >
-                  المزيد
-                </button>
-              </div>
-            </div>
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-              <img
-                src="https://public.readdy.ai/ai/img_res/9102f5973b20a7586e3e9d4d93d79ccd.jpg"
-                class="w-full h-48 object-cover"
-                alt="صندوق صديق للبيئة"
-              />
-              <div class="p-6">
-                <h3 class="text-xl font-bold mb-2">حلول صديقة للبيئة</h3>
-                <p class="text-gray-600 mb-4">
-                  صناديق قابلة لإعادة التدوير بالكامل
-                </p>
-                <button
-                  class="bg-primary text-white px-6 py-2 !rounded-button hover:bg-opacity-90 transition-colors"
-                >
-                  المزيد
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section id="services" class="py-20">
-        <div class="container mx-auto px-6">
-          <h2 class="text-4xl font-bold text-center mb-12">خدماتنا</h2>
-          <div
-            class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8"
-          >
-            <div class="text-center">
-              <div
-                class="w-16 h-16 mx-auto mb-4 text-primary flex items-center justify-center"
-              >
-                <i class="ri-truck-line ri-3x"></i>
-              </div>
-              <h3 class="text-xl font-bold mb-2">توصيل سريع</h3>
-              <p class="text-gray-600">خدمة توصيل موثوقة وسريعة</p>
-            </div>
-            <div class="text-center">
-              <div
-                class="w-16 h-16 mx-auto mb-4 text-primary flex items-center justify-center"
-              >
-                <i class="ri-tools-line ri-3x"></i>
-              </div>
-              <h3 class="text-xl font-bold mb-2">تصميم مخصص</h3>
-              <p class="text-gray-600">تصميم حسب متطلبات العميل</p>
-            </div>
-            <div class="text-center">
-              <div
-                class="w-16 h-16 mx-auto mb-4 text-primary flex items-center justify-center"
-              >
-                <i class="ri-printer-line ri-3x"></i>
-              </div>
-              <h3 class="text-xl font-bold mb-2">طباعة عالية الجودة</h3>
-              <p class="text-gray-600">طباعة احترافية بأحدث التقنيات</p>
-            </div>
-            <div class="text-center">
-              <div
-                class="w-16 h-16 mx-auto mb-4 text-primary flex items-center justify-center"
-              >
-                <i class="ri-customer-service-2-line ri-3x"></i>
-              </div>
-              <h3 class="text-xl font-bold mb-2">دعم فني</h3>
-              <p class="text-gray-600">فريق دعم متخصص لخدمتكم</p>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section id="gallery" class="py-20 bg-gray-50">
-        <div class="container mx-auto px-6">
-          <h2 class="text-4xl font-bold text-center mb-12">معرض الصور</h2>
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8"
-          >
-            <div class="relative group cursor-pointer">
-              <img
-                src="https://public.readdy.ai/ai/img_res/ee5d6a7cbd6e8652dd1aa20f15adf920.jpg"
-                class="w-full h-64 object-cover rounded-lg"
-                alt="عملية التصنيع"
-              />
-              <div
-                class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg"
-              >
-                <span class="text-white text-lg font-bold">عملية التصنيع</span>
-              </div>
-            </div>
-            <div class="relative group cursor-pointer">
-              <img
-                src="https://public.readdy.ai/ai/img_res/0994d9bf6c05fc9a7f7f1a99139ae2bc.jpg"
-                class="w-full h-64 object-cover rounded-lg"
-                alt="المستودع"
-              />
-              <div
-                class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg"
-              >
-                <span class="text-white text-lg font-bold">المستودع</span>
-              </div>
-            </div>
-            <div class="relative group cursor-pointer">
-              <img
-                src="https://public.readdy.ai/ai/img_res/fcfa5067bb89b7907deccd31087702b9.jpg"
-                class="w-full h-64 object-cover rounded-lg"
-                alt="مراقبة الجودة"
-              />
-              <div
-                class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg"
-              >
-                <span class="text-white text-lg font-bold">مراقبة الجودة</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section id="contact" class="py-20">
-        <div class="container mx-auto px-6">
-          <h2 class="text-4xl font-bold text-center mb-12">اتصل بنا</h2>
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div>
-              <form class="space-y-6">
-                <div>
-                  <label class="block text-gray-700 mb-2">الاسم</label>
-                  <input
-                    type="text"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
-                    required
-                  />
-                </div>
-                <div>
-                  <label class="block text-gray-700 mb-2"
-                    >البريد الإلكتروني</label
-                  >
-                  <input
-                    type="email"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
-                    required
-                  />
-                </div>
-                <div>
-                  <label class="block text-gray-700 mb-2">الرسالة</label>
-                  <textarea
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary h-32"
-                    required
-                  ></textarea>
-                </div>
-                <button
-                  type="submit"
-                  class="bg-primary text-white px-8 py-3 !rounded-button hover:bg-opacity-90 transition-colors"
-                >
-                  إرسال
-                </button>
-              </form>
-            </div>
-            <div>
-              <div class="space-y-6">
-                <div class="flex items-start space-x-4 space-x-reverse">
-                  <div
-                    class="w-12 h-12 flex items-center justify-center text-primary"
-                  >
-                    <i class="ri-map-pin-line ri-2x"></i>
-                  </div>
-                  <div>
-                    <h3 class="text-xl font-bold mb-2">العنوان</h3>
-                    <p class="text-gray-600">
-                      المنطقة الصناعية، شارع المصانع، رقم 123
-                    </p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4 space-x-reverse">
-                  <div
-                    class="w-12 h-12 flex items-center justify-center text-primary"
-                  >
-                    <i class="ri-phone-line ri-2x"></i>
-                  </div>
-                  <div>
-                    <h3 class="text-xl font-bold mb-2">الهاتف</h3>
-                    <p class="text-gray-600">+123 456 789</p>
-                  </div>
-                </div>
-                <div class="flex items-start space-x-4 space-x-reverse">
-                  <div
-                    class="w-12 h-12 flex items-center justify-center text-primary"
-                  >
-                    <i class="ri-mail-line ri-2x"></i>
-                  </div>
-                  <div>
-                    <h3 class="text-xl font-bold mb-2">البريد الإلكتروني</h3>
-                    <p class="text-gray-600">info@czemballage.com</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-    <footer class="bg-secondary py-12">
-      <div class="container mx-auto px-6">
-        <div
-          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
-        >
-          <div>
-            <div class="text-2xl font-['Pacifico'] text-primary mb-4">
-              CZ Emballage
-            </div>
-            <p class="text-gray-400">رائدون في صناعة الصناديق الكرتونية</p>
-          </div>
-          <div>
-            <h4 class="text-white font-bold mb-4">روابط سريعة</h4>
-            <ul class="space-y-2">
-              <li>
-                <a
-                  href="#home"
-                  class="text-gray-400 hover:text-primary transition-colors"
-                  >الرئيسية</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#about"
-                  class="text-gray-400 hover:text-primary transition-colors"
-                  >من نحن</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#products"
-                  class="text-gray-400 hover:text-primary transition-colors"
-                  >المنتجات</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#contact"
-                  class="text-gray-400 hover:text-primary transition-colors"
-                  >اتصل بنا</a
-                >
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="text-white font-bold mb-4">تواصل معنا</h4>
-            <div class="flex space-x-4 space-x-reverse">
-              <a
-                href="#"
-                class="text-gray-400 hover:text-primary transition-colors"
-              >
-                <i class="ri-facebook-fill ri-xl"></i>
-              </a>
-              <a
-                href="#"
-                class="text-gray-400 hover:text-primary transition-colors"
-              >
-                <i class="ri-twitter-fill ri-xl"></i>
-              </a>
-              <a
-                href="#"
-                class="text-gray-400 hover:text-primary transition-colors"
-              >
-                <i class="ri-instagram-fill ri-xl"></i>
-              </a>
-              <a
-                href="#"
-                class="text-gray-400 hover:text-primary transition-colors"
-              >
-                <i class="ri-linkedin-fill ri-xl"></i>
-              </a>
-            </div>
-          </div>
-          <div>
-            <h4 class="text-white font-bold mb-4">النشرة البريدية</h4>
-            <form class="flex flex-col sm:flex-row gap-2 sm:gap-0">
-              <input
-                type="email"
-                placeholder="البريد الإلكتروني"
-                class="px-4 py-2 rounded-lg sm:!rounded-r-none focus:outline-none flex-1"
-              />
-              <button
-                type="submit"
-                class="bg-primary text-white px-4 py-2 rounded-lg sm:!rounded-l-none !rounded-button hover:bg-opacity-90 transition-colors"
-              >
-                اشتراك
-              </button>
-            </form>
-          </div>
-        </div>
-        <div class="border-t border-gray-700 mt-12 pt-8 text-center">
-          <p class="text-gray-400">جميع الحقوق محفوظة © 2025 CZ Emballage</p>
-        </div>
+      <div class="video-slide">
+        <iframe 
+          class="absolute top-0 left-0 w-full h-full"
+          src="https://www.youtube.com/embed/MDwr_6hyjLk"
+          title="عرض صناديق الكرتون"
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
       </div>
-    </footer>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const mobileMenuButton = document.getElementById("mobile-menu-button");
-        const mobileMenu = document.getElementById("mobile-menu");
-        mobileMenuButton.addEventListener("click", () => {
-          mobileMenu.classList.toggle("hidden");
-          if (!mobileMenu.classList.contains("hidden")) {
-            mobileMenuButton.innerHTML = '<i class="ri-close-line ri-2x"></i>';
-          } else {
-            mobileMenuButton.innerHTML = '<i class="ri-menu-line ri-2x"></i>';
-          }
-        });
-        // 点击菜单项时关闭移动端菜单
-        mobileMenu.querySelectorAll("a").forEach((link) => {
-          link.addEventListener("click", () => {
-            mobileMenu.classList.add("hidden");
-            mobileMenuButton.innerHTML = '<i class="ri-menu-line ri-2x"></i>';
-          });
-        });
-        const navLinks = document.querySelectorAll("nav a");
-        const mainContent = document.querySelector("main");
-        const pages = {
-          home: document.querySelector("#home").outerHTML,
-          about: `<section id="about" class="py-20">
-      <div class="container mx-auto px-6">
-      <h2 class="text-4xl font-bold text-center mb-12">من نحن</h2>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-      <div>
-      <img src="https://public.readdy.ai/ai/img_res/d7e042c7b708cc138849cf65ed01a865.jpg"
-      class="rounded-lg shadow-lg w-full" alt="مصنعنا">
+      <div class="video-slide">
+        <iframe 
+          class="absolute top-0 left-0 w-full h-full"
+          src="https://www.youtube.com/embed/H5G31Wo82PM"
+          title="عرض صناديق الكرتون"
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
       </div>
-      <div>
-      <h3 class="text-2xl font-bold mb-4">شركة رائدة في صناعة الكرتون</h3>
-      <p class="text-gray-600 mb-6">نحن شركة متخصصة في تصنيع الصناديق الكرتونية بجميع أنواعها وأحجامها. نمتلك خبرة تزيد عن 20 عاماً في هذا المجال.</p>
-      <div class="grid grid-cols-2 gap-6">
-      <div class="text-center">
-      <div class="text-4xl font-bold text-primary mb-2">20+</div>
-      <div class="text-gray-600">سنوات من الخبرة</div>
-      </div>
-      <div class="text-center">
-      <div class="text-4xl font-bold text-primary mb-2">1000+</div>
-      <div class="text-gray-600">عميل راضٍ</div>
-      </div>
-      <div class="text-center">
-      <div class="text-4xl font-bold text-primary mb-2">50+</div>
-      <div class="text-gray-600">موظف متخصص</div>
-      </div>
-      <div class="text-center">
-      <div class="text-4xl font-bold text-primary mb-2">24/7</div>
-      <div class="text-gray-600">دعم فني</div>
-      </div>
-      </div>
-      </div>
-      </div>
-      </div>
-      </section>`,
-          products: document.querySelector("#products").outerHTML,
-          services: document.querySelector("#services").outerHTML,
-          gallery: document.querySelector("#gallery").outerHTML,
-          contact: document.querySelector("#contact").outerHTML,
-        };
-        navLinks.forEach((link) => {
-          link.addEventListener("click", function (e) {
-            e.preventDefault();
-            const page = this.getAttribute("href").substring(1);
-            if (page === "home") {
-              mainContent.innerHTML = Object.values(pages).join("");
-            } else {
-              mainContent.innerHTML = pages[page];
-            }
-            window.scrollTo(0, 0);
-          });
-        });
-        // 初始化显示所有内容
-        mainContent.innerHTML = Object.values(pages).join("");
-        // 处理所有表单提交
-        document.addEventListener("submit", function (e) {
-          if (e.target.tagName === "FORM") {
-            e.preventDefault();
-            const successMessage = document.createElement("div");
-            successMessage.className =
-              "fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg";
-            successMessage.textContent = "تم إرسال رسالتك بنجاح!";
-            document.body.appendChild(successMessage);
-            setTimeout(() => successMessage.remove(), 3000);
-            e.target.reset();
-          }
-        });
-        // 处理图片点击事件
-        document.addEventListener("click", function (e) {
-          if (e.target.tagName === "IMG" && e.target.closest("#gallery")) {
-            const modal = document.createElement("div");
-            modal.className =
-              "fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50";
-            modal.innerHTML = `
-      <div class="relative max-w-4xl mx-4">
-      <img src="${e.target.src}" class="max-h-[80vh] w-auto">
-      <button class="absolute top-4 right-4 text-white text-2xl">&times;</button>
-      </div>
-      `;
-            document.body.appendChild(modal);
-            modal
-              .querySelector("button")
-              .addEventListener("click", () => modal.remove());
-          }
-        });
-      });
-    </script>
-  </body>
+    </div>
+  </div>
+
+  <button class="absolute right-2 top-1/2 -translate-y-1/2" id="prevVideo">
+    <i class="ri-arrow-right-s-line ri-lg"></i>
+  </button>
+  <button class="absolute left-2 top-1/2 -translate-y-1/2" id="nextVideo">
+    <i class="ri-arrow-left-s-line ri-lg"></i>
+  </button>
+
+  <div class="bg-white p-4">
+    <h3 class="text-lg font-bold mb-1">عرض توضيحي للمنتج</h3>
+    <p class="text-gray-600 text-sm">شاهد كيف تلبي صناديقنا احتياجات عملائنا المتنوعة</p>
+  </div>
+</div>
+<h2 class="text-4xl font-bold text-center mb-4">منتجاتنا</h2>
+<p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">نقدم مجموعة متنوعة من الحلول المبتكرة في مجال التعبئة والتغليف لتلبية احتياجات عملائنا المختلفة</p>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<div class="group bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden product-card">
+<div class="relative">
+<img src="https://static.readdy.ai/image/e7d40f4033a2ed1e1a273a61ffdd5ed9/06bd768fe2b175705abaa6c2e2f68eca.jpeg" class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-300" alt="صناديق متعددة الأحجام">
+<div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+</div>
+<div class="p-6">
+<h3 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">صناديق متعددة الأحجام</h3>
+<p class="text-gray-600 mb-4 text-sm">صناديق كرتونية بأحجام مختلفة تناسب جميع الاحتياجات</p>
+<div class="flex items-center justify-between">
+<button class="bg-primary text-white px-6 py-2 !rounded-button hover:bg-opacity-90 transition-colors text-sm btn-primary">اطلب الآن</button>
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-arrow-left-line"></i>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-lg overflow-hidden product-card">
+<img src="https://static.readdy.ai/image/e7d40f4033a2ed1e1a273a61ffdd5ed9/c1104439c0756c3ee0472aee4365e4f7.jpeg" class="w-full h-48 object-cover" alt="علب تفاح فوجي">
+<div class="p-6">
+<h3 class="text-xl font-bold mb-2">علب تفاح فوجي</h3>
+<p class="text-gray-600 mb-4">علب مخصصة لتعبئة وتغليف تفاح فوجي الفاخر</p>
+<button class="bg-primary text-white px-6 py-2 !rounded-button hover:bg-opacity-90 transition-colors btn-primary">المزيد</button>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-lg overflow-hidden product-card">
+<img src="https://static.readdy.ai/image/e7d40f4033a2ed1e1a273a61ffdd5ed9/5460309e2ebcd1598086de8ac4a4bc94.jpeg" class="w-full h-48 object-cover" alt="علب البيتزا">
+<div class="p-6">
+<h3 class="text-xl font-bold mb-2">علب البيتزا</h3>
+<p class="text-gray-600 mb-4">علب بيتزا عالية الجودة مع إمكانية الطباعة المخصصة</p>
+<button class="bg-primary text-white px-6 py-2 !rounded-button hover:bg-opacity-90 transition-colors btn-primary">المزيد</button>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-lg overflow-hidden product-card">
+<img src="https://static.readdy.ai/image/e7d40f4033a2ed1e1a273a61ffdd5ed9/b461d1e8fcf48eef32edaeca8d18d3b9.jpeg" class="w-full h-48 object-cover" alt="صناديق الشحن">
+<div class="p-6">
+<h3 class="text-xl font-bold mb-2">صناديق الشحن</h3>
+<p class="text-gray-600 mb-4">صناديق شحن متينة ومناسبة للتخزين والنقل</p>
+<button class="bg-primary text-white px-6 py-2 !rounded-button hover:bg-opacity-90 transition-colors btn-primary">المزيد</button>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-lg overflow-hidden product-card">
+<img src="https://static.readdy.ai/image/e7d40f4033a2ed1e1a273a61ffdd5ed9/3eacc880db3f0789bb92d84b90cc5dfd.jpeg" class="w-full h-48 object-cover" alt="علب البيض">
+<div class="p-6">
+<h3 class="text-xl font-bold mb-2">علب البيض</h3>
+<p class="text-gray-600 mb-4">علب بيض مبتكرة وآمنة للنقل والتخزين</p>
+<button class="bg-primary text-white px-6 py-2 !rounded-button hover:bg-opacity-90 transition-colors btn-primary">المزيد</button>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-lg overflow-hidden product-card">
+<img src="https://static.readdy.ai/image/e7d40f4033a2ed1e1a273a61ffdd5ed9/022603eab6593653935e1d622a1852a7.jpeg" class="w-full h-48 object-cover" alt="علب الفواكه">
+<div class="p-6">
+<h3 class="text-xl font-bold mb-2">علب الفواكه</h3>
+<p class="text-gray-600 mb-4">علب فواكه متينة ومناسبة لجميع أنواع المنتجات الزراعية</p>
+<button class="bg-primary text-white px-6 py-2 !rounded-button hover:bg-opacity-90 transition-colors btn-primary">المزيد</button>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-lg overflow-hidden product-card">
+<img src="https://static.readdy.ai/image/e7d40f4033a2ed1e1a273a61ffdd5ed9/28a5203b8f337ff5e8aaf9934483da7d.jpeg" class="w-full h-48 object-cover" alt="علب التفاح">
+<div class="p-6">
+<h3 class="text-xl font-bold mb-2">علب التفاح</h3>
+<p class="text-gray-600 mb-4">علب تفاح متينة ومناسبة للتخزين والشحن</p>
+<button class="bg-primary text-white px-6 py-2 !rounded-button hover:bg-opacity-90 transition-colors btn-primary">المزيد</button>
+</div>
+</div>
+<div class="bg-white rounded-lg shadow-lg overflow-hidden product-card">
+<img src="https://static.readdy.ai/image/e7d40f4033a2ed1e1a273a61ffdd5ed9/f36de8b3070fbcb9514cb9e5e8bce880.jpeg" class="w-full h-48 object-cover" alt="علب الخضروات">
+<div class="p-6">
+<h3 class="text-xl font-bold mb-2">علب الخضروات</h3>
+<p class="text-gray-600 mb-4">علب خضروات متينة مع تهوية مناسبة للحفاظ على المنتج</p>
+<button class="bg-primary text-white px-6 py-2 !rounded-button hover:bg-opacity-90 transition-colors btn-primary">المزيد</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="services" class="py-20">
+<div class="container mx-auto px-6">
+<h2 class="text-4xl font-bold text-center mb-12">خدماتنا</h2>
+<div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+<div class="text-center">
+<div class="w-16 h-16 mx-auto mb-4 text-primary flex items-center justify-center">
+<i class="ri-truck-line ri-3x"></i>
+</div>
+<h3 class="text-xl font-bold mb-2">توصيل سريع</h3>
+<p class="text-gray-600">خدمة توصيل موثوقة وسريعة</p>
+</div>
+<div class="text-center">
+<div class="w-16 h-16 mx-auto mb-4 text-primary flex items-center justify-center">
+<i class="ri-tools-line ri-3x"></i>
+</div>
+<h3 class="text-xl font-bold mb-2">تصميم مخصص</h3>
+<p class="text-gray-600">تصميم حسب متطلبات العميل</p>
+</div>
+<div class="text-center">
+<div class="w-16 h-16 mx-auto mb-4 text-primary flex items-center justify-center">
+<i class="ri-printer-line ri-3x"></i>
+</div>
+<h3 class="text-xl font-bold mb-2">طباعة عالية الجودة</h3>
+<p class="text-gray-600">طباعة احترافية بأحدث التقنيات</p>
+</div>
+<div class="text-center">
+<div class="w-16 h-16 mx-auto mb-4 text-primary flex items-center justify-center">
+<i class="ri-customer-service-2-line ri-3x"></i>
+</div>
+<h3 class="text-xl font-bold mb-2">دعم فني</h3>
+<p class="text-gray-600">فريق دعم متخصص لخدمتكم</p>
+</div>
+</div>
+</div>
+</section>
+<section id="gallery" class="py-20 bg-gray-50">
+<div class="container mx-auto px-6">
+<h2 class="text-4xl font-bold text-center mb-12">معرض الصور</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+<div class="relative group cursor-pointer gallery-item">
+<img src="https://public.readdy.ai/ai/img_res/ee5d6a7cbd6e8652dd1aa20f15adf920.jpg" class="w-full h-64 object-cover rounded-lg" alt="عملية التصنيع">
+<div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+<span class="text-white text-lg font-bold">عملية التصنيع</span>
+</div>
+</div>
+<div class="relative group cursor-pointer gallery-item">
+<img src="https://public.readdy.ai/ai/img_res/0994d9bf6c05fc9a7f7f1a99139ae2bc.jpg" class="w-full h-64 object-cover rounded-lg" alt="المستودع">
+<div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+<span class="text-white text-lg font-bold">المستودع</span>
+</div>
+</div>
+<div class="relative group cursor-pointer gallery-item">
+<img src="https://public.readdy.ai/ai/img_res/fcfa5067bb89b7907deccd31087702b9.jpg" class="w-full h-64 object-cover rounded-lg" alt="مراقبة الجودة">
+<div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+<span class="text-white text-lg font-bold">مراقبة الجودة</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="contact" class="py-20">
+<div class="container mx-auto px-6">
+<h2 class="text-4xl font-bold text-center mb-12">اتصل بنا</h2>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+<div>
+<form class="space-y-6">
+<div>
+<label class="block text-gray-700 mb-2">الاسم</label>
+<input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary" required>
+</div>
+<div>
+<label class="block text-gray-700 mb-2">البريد الإلكتروني</label>
+<input type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary" required>
+</div>
+<div>
+<label class="block text-gray-700 mb-2">الرسالة</label>
+<textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary h-32" required></textarea>
+</div>
+<button type="submit" class="bg-primary text-white px-8 py-3 !rounded-button hover:bg-opacity-90 transition-colors btn-primary">إرسال</button>
+</form>
+</div>
+<div>
+<div class="space-y-6">
+<div class="flex items-start space-x-4 space-x-reverse">
+<div class="w-12 h-12 flex items-center justify-center text-primary">
+<i class="ri-map-pin-line ri-2x"></i>
+</div>
+<div>
+<h3 class="text-xl font-bold mb-2">العنوان</h3>
+<p class="text-gray-600">المنطقة الصناعية، شارع المصانع، رقم 123</p>
+</div>
+</div>
+<div class="flex items-start space-x-4 space-x-reverse">
+<div class="w-12 h-12 flex items-center justify-center text-primary">
+<i class="ri-phone-line ri-2x"></i>
+</div>
+<div>
+<h3 class="text-xl font-bold mb-2">الهاتف</h3>
+<p class="text-gray-600">+123 456 789</p>
+</div>
+</div>
+<div class="flex items-start space-x-4 space-x-reverse">
+<div class="w-12 h-12 flex items-center justify-center text-primary">
+<i class="ri-mail-line ri-2x"></i>
+</div>
+<div>
+<h3 class="text-xl font-bold mb-2">البريد الإلكتروني</h3>
+<p class="text-gray-600"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fc95929a93bc9f8699919e9d90909d9b99d29f9391">[email&#160;protected]</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer class="bg-secondary py-12">
+<div class="container mx-auto px-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+<div>
+<div class="text-2xl font-['Pacifico'] text-primary mb-4">CZ Emballage</div>
+<p class="text-gray-400">رائدون في صناعة الصناديق الكرتونية</p>
+</div>
+<div>
+<h4 class="text-white font-bold mb-4">روابط سريعة</h4>
+<ul class="space-y-2">
+<li><a href="#home" class="text-gray-400 hover:text-primary transition-colors">الرئيسية</a></li>
+<li><a href="#about" class="text-gray-400 hover:text-primary transition-colors">من نحن</a></li>
+<li><a href="#products" class="text-gray-400 hover:text-primary transition-colors">المنتجات</a></li>
+<li><a href="#contact" class="text-gray-400 hover:text-primary transition-colors">اتصل بنا</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white font-bold mb-4">تواصل معنا</h4>
+<div class="flex space-x-4 space-x-reverse">
+<a href="#" class="text-gray-400 hover:text-primary transition-colors">
+<i class="ri-facebook-fill ri-xl"></i>
+</a>
+<a href="#" class="text-gray-400 hover:text-primary transition-colors">
+<i class="ri-twitter-fill ri-xl"></i>
+</a>
+<a href="#" class="text-gray-400 hover:text-primary transition-colors">
+<i class="ri-instagram-fill ri-xl"></i>
+</a>
+<a href="#" class="text-gray-400 hover:text-primary transition-colors">
+<i class="ri-linkedin-fill ri-xl"></i>
+</a>
+</div>
+</div>
+<div>
+<h4 class="text-white font-bold mb-4">النشرة البريدية</h4>
+<form class="flex flex-col sm:flex-row gap-2 sm:gap-0">
+<input type="email" placeholder="البريد الإلكتروني" class="px-4 py-2 rounded-lg sm:!rounded-r-none focus:outline-none flex-1">
+<button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg sm:!rounded-l-none !rounded-button hover:bg-opacity-90 transition-colors btn-primary">اشتراك</button>
+</form>
+</div>
+</div>
+<div class="border-t border-gray-700 mt-12 pt-8 text-center">
+<p class="text-gray-400">جميع الحقوق محفوظة 2025 CZ Emballage</p>
+</div>
+</div>
+</footer>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
+const mobileMenuButton = document.getElementById('mobile-menu-button');
+const mobileMenu = document.getElementById('mobile-menu');
+mobileMenuButton.addEventListener('click', () => {
+mobileMenu.classList.toggle('hidden');
+if(!mobileMenu.classList.contains('hidden')) {
+mobileMenuButton.innerHTML = '<i class="ri-close-line ri-2x"></i>';
+} else {
+mobileMenuButton.innerHTML = '<i class="ri-menu-line ri-2x"></i>';
+}
+});
+// 点击菜单项时关闭移动端菜单
+mobileMenu.querySelectorAll('a').forEach(link => {
+link.addEventListener('click', () => {
+mobileMenu.classList.add('hidden');
+mobileMenuButton.innerHTML = '<i class="ri-menu-line ri-2x"></i>';
+});
+});
+const navLinks = document.querySelectorAll('nav a');
+const mainContent = document.querySelector('main');
+const pages = {
+home: document.querySelector('#home').outerHTML,
+about: `<section id="about" class="py-20 fade-in">
+<div class="container mx-auto px-6">
+<h2 class="text-4xl font-bold text-center mb-12">من نحن</h2>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+<div>
+<img src="https://public.readdy.ai/ai/img_res/d7e042c7b708cc138849cf65ed01a865.jpg"
+class="rounded-lg shadow-lg w-full" alt="مصنعنا">
+</div>
+<div>
+<h3 class="text-2xl font-bold mb-4">شركة رائدة في صناعة الكرتون</h3>
+<p class="text-gray-600 mb-6">نحن شركة متخصصة في تصنيع الصناديق الكرتونية بجميع أنواعها وأحجامها. نمتلك خبرة تزيد عن 20 عاماً في هذا المجال.</p>
+<div class="grid grid-cols-2 gap-6">
+<div class="text-center">
+<div class="text-4xl font-bold text-primary mb-2">20+</div>
+<div class="text-gray-600">سنوات من الخبرة</div>
+</div>
+<div class="text-center">
+<div class="text-4xl font-bold text-primary mb-2">1000+</div>
+<div class="text-gray-600">عميل راضٍ</div>
+</div>
+<div class="text-center">
+<div class="text-4xl font-bold text-primary mb-2">50+</div>
+<div class="text-gray-600">موظف متخصص</div>
+</div>
+<div class="text-center">
+<div class="text-4xl font-bold text-primary mb-2">24/7</div>
+<div class="text-gray-600">دعم فني</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>`,
+products: document.querySelector('#products').outerHTML,
+services: document.querySelector('#services').outerHTML,
+gallery: document.querySelector('#gallery').outerHTML,
+contact: document.querySelector('#contact').outerHTML
+};
+navLinks.forEach(link => {
+link.addEventListener('click', function(e) {
+e.preventDefault();
+const page = this.getAttribute('href').substring(1);
+if(page === 'home') {
+mainContent.innerHTML = Object.values(pages).join('');
+} else {
+mainContent.innerHTML = pages[page];
+}
+window.scrollTo(0, 0);
+});
+});
+// 初始化显示所有内容
+mainContent.innerHTML = Object.values(pages).join('');
+// 处理所有表单提交
+document.addEventListener('submit', function(e) {
+if(e.target.tagName === 'FORM') {
+e.preventDefault();
+const successMessage = document.createElement('div');
+successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg';
+successMessage.textContent = 'تم إرسال رسالتك بنجاح!';
+document.body.appendChild(successMessage);
+setTimeout(() => successMessage.remove(), 3000);
+e.target.reset();
+}
+});
+// 处理图片点击事件
+document.addEventListener('click', function(e) {
+if(e.target.tagName === 'IMG' && e.target.closest('#gallery')) {
+const modal = document.createElement('div');
+modal.className = 'fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50';
+modal.innerHTML = `
+<div class="relative max-w-4xl mx-4">
+<img src="${e.target.src}" class="max-h-[80vh] w-auto">
+<button class="absolute top-4 right-4 text-white text-2xl">&times;</button>
+</div>
+`;
+document.body.appendChild(modal);
+modal.querySelector('button').addEventListener('click', () => modal.remove());
+}
+});
+
+// Video carousel script
+const videoSlides = document.querySelectorAll('.video-slide');
+const prevVideoButton = document.getElementById('prevVideo');
+const nextVideoButton = document.getElementById('nextVideo');
+
+let activeSlideIndex = 0;
+
+videoSlides.forEach((slide, index) => {
+  slide.classList.toggle('active', index === activeSlideIndex);
+});
+
+prevVideoButton.addEventListener('click', () => {
+  videoSlides[activeSlideIndex].classList.remove('active');
+  activeSlideIndex = (activeSlideIndex - 1 + videoSlides.length) % videoSlides.length;
+  videoSlides[activeSlideIndex].classList.add('active');
+});
+
+nextVideoButton.addEventListener('click', () => {
+  videoSlides[activeSlideIndex].classList.remove('active');
+  activeSlideIndex = (activeSlideIndex + 1) % videoSlides.length;
+  videoSlides[activeSlideIndex].classList.add('active');
+});
+});
+</script>
+</body>
 </html>
