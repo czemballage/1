@@ -93,6 +93,7 @@ h3 {
 /* ------------------------------------------------------------------ layout */
 
 .app {
+  overflow-x: clip;
   min-height: 100vh;
   min-height: 100svh;
   max-width: 560px;
@@ -373,7 +374,7 @@ h3 {
 }
 
 .stamp--xl {
-  font-size: clamp(28px, 8.6vw, 50px);
+  font-size: clamp(24px, 7.4vw, 50px);
   border-width: 6px;
   outline-width: 2px;
   outline-offset: -14px;
@@ -1542,6 +1543,9 @@ h3 {
 
 /* Landscape phones: give the card room. */
 @media (orientation: landscape) and (max-height: 500px) {
+  .screen__actions {
+    position: static;
+  }
   .reveal-card {
     height: 82vh;
     min-height: 240px;
@@ -1590,4 +1594,15 @@ h3 {
 
 .verdict .stamp {
   flex: none;
+}
+
+/* Guess options must be fully readable: wrap instead of truncating. */
+.pick-grid--options .pick {
+  padding-block: var(--s2);
+  line-height: 1.35;
+}
+
+.pick-grid--options .pick span {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }

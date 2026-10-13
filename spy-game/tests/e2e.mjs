@@ -71,6 +71,8 @@ async function run(vw, vh, { names, shots = true }) {
   void ctx;
   const browser = await chromium.launch();
   const context = await browser.newContext({ viewport: { width: vw, height: vh }, deviceScaleFactor: 2, hasTouch: true, isMobile: vw < 700, locale: 'ar' });
+  // The content-update check talks to Supabase; answer "up to date" so the test is hermetic.
+  await context.route('https://dcmyphywgcoewqcnxscp.supabase.co/**', (r) => r.fulfill({ status: 200, contentType: 'application/json', body: 'null' }));
   const page = await context.newPage();
   const errors = [];
   page.on('console', (m) => {
@@ -90,6 +92,11 @@ async function run(vw, vh, { names, shots = true }) {
   }
   // duplicate name error
   if (names.length < 12) {
+    // 17 characters must be refused with a visible message
+    await page.fill('#pname', LONG);
+    await page.press('#pname', 'Enter');
+    const longErr = await page.locator('#pname-help.is-error').count();
+    if (!longErr) problems.push(`[${vp}] long name not refused`);
     await page.fill('#pname', names[0].replace('أ', 'ا'));
     await page.press('#pname', 'Enter');
     if (shots) await shot(page, '03-players-duplicate', vp);
@@ -266,7 +273,7 @@ async function landscapeRun() {
 const only = process.env.ONLY;
 for (const [w, h] of VIEWPORTS) {
   if (only && only !== `${w}x${h}`) continue;
-  await run(w, h, { names: w === 390 ? NAMES12 : w === 320 ? ['أمين', 'سارة', LONG] : NAMES12.slice(0, 5) });
+  await run(w, h, { names: w === 390 ? NAMES12 : w === 320 ? ['أمين', 'سارة', LONG.slice(0, 16)] : NAMES12.slice(0, 5) });
 }
 if (!only) {
   await run(390, 844, { names: ['أمين', 'سارة', 'يوسف'], shots: false });

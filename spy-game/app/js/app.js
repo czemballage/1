@@ -544,7 +544,9 @@ async function boot() {
   }
   render();
   // Background: check for newer packs from the cloud (never blocks play).
-  if (navigator.onLine) {
+  const lastCheck = storage.get('mj:content-checked', 0);
+  if (navigator.onLine && Date.now() - lastCheck > 12 * 3600 * 1000) {
+    storage.set('mj:content-checked', Date.now());
     import('./sync.js')
       .then((m) => m.refreshContent(content.version, ctx))
       .catch(() => {});
