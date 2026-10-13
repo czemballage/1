@@ -289,7 +289,11 @@ document.addEventListener('visibilitychange', () => {
 // ------------------------------------------------------------------ actions
 
 const actions = {
-  go: (el) => navigate(el.dataset.to),
+  go: (el) => {
+    const s = getState();
+    if (el.dataset.to === 'online-profile' && s.screen !== 'online-profile') ui.accountFrom = s.screen;
+    navigate(el.dataset.to);
+  },
   back: () => handleBack(),
   async start() {
     const s = getState();
@@ -529,6 +533,24 @@ async function boot() {
   if (s.screen === 'round' && !round) patch.screen = 'home';
   if (round && round.phase === 'discussion' && G.remainingMs(round) <= 0) patch.round = G.transition(round, 'vote');
   if (s.screen.startsWith('online')) patch.screen = 'online';
+  // Back from the sign-in email link: let the SDK read the token, then show the account.
+  if (/access_token=|error_description=|[?&]code=|type=(magiclink|signup|email_change|recovery)/.test(location.hash + location.search)) {
+    patch.screen = 'online-profile';
+    ui.accountFrom = 'home';
+    import('./supabase.js')
+      .then(async (m) => {
+        const c = await m.getClient();
+        const { data } = await c.auth.getSession();
+        try {
+          history.replaceState(history.state, '', location.pathname);
+        } catch {
+          /* ignore */
+        }
+        toast(data.session ? 'تم تسجيل الدخول' : 'انتهت صلاحية الرابط. اطلب رابطاً جديداً.', data.session ? 'check' : 'close');
+        (await loadOnline()).reloadProfile?.(ctx);
+      })
+      .catch(() => toast('تعذّر تسجيل الدخول. تحقّق من الإنترنت.', 'close'));
+  }
   // Deep link to join a room: ?room=ABCD
   const room = new URLSearchParams(location.search).get('room');
   if (room) {

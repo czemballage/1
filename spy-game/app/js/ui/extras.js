@@ -72,6 +72,7 @@ export function prefsScreen(s, ctx) {
   return `<section class="screen">
     ${topbar({ title: 'الإعدادات' })}
     <div class="screen__body">
+      <button class="tool-btn account-link" data-action="go" data-to="online-profile">${icon('user', { size: 22 })}<span>حسابي وتسجيل الدخول</span>${icon('next', { size: 18 })}</button>
       <div>
         ${toggleRow('sound', 'الأصوات', 'صوت الختم وعدّاد الوقت.', p.sound, 'pref')}
         ${toggleRow('haptics', 'الاهتزاز', 'اهتزاز خفيف عند كشف البطاقة والنتيجة.', p.haptics, 'pref')}

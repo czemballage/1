@@ -3,7 +3,7 @@
 import { getState, setState, storage } from '../state.js';
 import { esc, topbar, btn, stamp, toast, confirmModal, $ } from './dom.js';
 import { icon } from './icons.js';
-import { getClient, ensureSession, currentUser, rpc, errorText, sendEmailCode, verifyEmailCode, signOut, toError } from '../supabase.js';
+import { getClient, ensureSession, getSession, currentUser, rpc, errorText, sendEmailCode, verifyEmailCode, signOut, toError } from '../supabase.js';
 import { schedulePush, pullUserData, fetchStats, saveProfile, listCustomPacks, saveCustomPack, deleteCustomPack, cacheCustomPacks } from '../sync.js';
 import { bindHold } from './hold.js';
 import { play, vibrate } from './fx.js';
@@ -85,7 +85,7 @@ function entryScreen(ctx) {
   return `<section class="screen">
     ${topbar({ title: 'اللعب أونلاين', end: `<button class="icon-btn" data-action="go" data-to="online-profile" aria-label="الحساب">${icon(p.avatar || 'user')}</button>` })}
     <div class="screen__body">
-      ${errorLine()}
+      ${o.needLogin && !(o.me && !o.me.is_anonymous) ? `<div class="offline-banner" role="alert">${icon('lock', { size: 20 })}<span>للعب أونلاين سجّل دخولك بالبريد أولاً.</span><button class="tool-btn" data-action="go" data-to="online-profile">تسجيل الدخول</button></div>` : errorLine()}
       <form class="sheet form" data-form="ol-join" style="padding:var(--s6) var(--s4)" autocomplete="off" novalidate>
         <span class="clip">${icon('clip', { size: 34 })}</span>
         <h2 style="font-family:var(--f-body);font-weight:600;font-size:21px">ادخل غرفة صديقك</h2>
@@ -135,6 +135,39 @@ function createScreen(ctx) {
   </section>`;
 }
 
+function accountCard() {
+  const u = o.me;
+  const p = profile();
+  if (u && !u.is_anonymous && u.email) {
+    return `<div class="sheet account-card">
+      <span class="account-card__avatar">${icon(p.avatar || 'user', { size: 32 })}</span>
+      <div class="account-card__text"><b>${esc(p.name || 'لاعب')}</b><span class="ltr">${esc(u.email)}</span></div>
+      <span class="badge">${icon('check', { size: 14 })}مسجّل</span>
+    </div>`;
+  }
+  const sent = o.otp.type;
+  return `<div class="sheet account-card account-card--login" id="login">
+    <span class="clip">${icon('clip', { size: 34 })}</span>
+    <h2 class="account-card__title">${sent ? 'افتح بريدك' : 'سجّل دخولك'}</h2>
+    ${
+      sent
+        ? `<p>أرسلنا رسالة إلى <b class="ltr">${esc(o.otp.email)}</b>. اضغط على الرابط في الرسالة من <b>هذا الهاتف</b> وسترجع للعبة مسجّلاً.</p>
+           <form class="account-form" data-form="ol-otp-verify" autocomplete="one-time-code" novalidate>
+             <label class="form-label" for="ol-otp" style="color:var(--ink)">أو اكتب الرمز إن وصلك رمز من أرقام</label>
+             <input id="ol-otp" class="input ltr code-small" name="token" inputmode="numeric" maxlength="10" placeholder="123456" autocomplete="one-time-code">
+             <button class="btn btn--primary" type="submit" ${o.busy ? 'disabled' : ''}>${icon('check')}<span>تأكيد الرمز</span></button>
+           </form>
+           <button class="btn btn--ghost account-ghost" data-action="ol-otp-reset">استعمل بريداً آخر أو أعد الإرسال</button>`
+        : `<p>بالبريد الإلكتروني فقط، بدون كلمة سر. تحتاجه للعب أونلاين، ولحفظ نتائجك وملفاتك على كل أجهزتك.</p>
+           <form class="account-form" data-form="ol-otp-send" novalidate>
+             <label class="sr-only" for="ol-email">البريد الإلكتروني</label>
+             <input id="ol-email" class="input ltr" type="email" name="email" inputmode="email" autocomplete="email" placeholder="name@example.com" required>
+             <button class="btn btn--primary" type="submit" ${o.busy ? 'disabled' : ''}>${icon('next')}<span>${o.busy ? 'جارٍ الإرسال…' : 'أرسل رابط الدخول'}</span></button>
+           </form>`
+    }
+  </div>`;
+}
+
 function profileScreen() {
   const p = profile();
   const u = o.me;
@@ -142,9 +175,18 @@ function profileScreen() {
   const signed = u && !u.is_anonymous && u.email;
   const rate = st && st.times_spy ? Math.round((st.spy_wins / st.times_spy) * 100) : 0;
   return `<section class="screen">
-    ${topbar({ title: 'الحساب' })}
+    ${topbar({ title: 'حسابي' })}
     <div class="screen__body">
       ${errorLine()}
+      ${accountCard()}
+      ${
+        st
+          ? `<dl class="sheet stats-row">
+          <div><dt>جولات</dt><dd class="board__pts">${st.games_played}</dd></div>
+          <div><dt>مرّات جاسوس</dt><dd class="board__pts">${st.times_spy}</dd></div>
+          <div><dt>فوز الجاسوس</dt><dd class="board__pts"><span class="ltr">${rate}%</span></dd></div></dl>`
+          : ''
+      }
       <form class="form" data-form="ol-profile" autocomplete="off" novalidate>
         ${nameField('ol-profile-name')}
         <div class="form-group"><span class="form-label">الصورة</span>
@@ -152,33 +194,11 @@ function profileScreen() {
             (a) => `<button type="button" class="avatar-opt" role="radio" aria-checked="${a === p.avatar}" aria-pressed="${a === p.avatar}" data-action="ol-avatar" data-v="${a}" aria-label="${a}">${icon(a, { size: 30 })}</button>`
           ).join('')}</div>
         </div>
-        <button class="btn btn--secondary" type="submit">${icon('check')}<span>حفظ</span></button>
+        <button class="btn btn--secondary" type="submit">${icon('check')}<span>حفظ الاسم والصورة</span></button>
       </form>
       ${
-        st
-          ? `<dl class="sheet" style="padding:var(--s4);display:grid;grid-template-columns:repeat(3,1fr);text-align:center;gap:var(--s2);margin:0">
-          <div><dt class="caption" style="color:var(--ink-soft)">جولات</dt><dd class="board__pts" style="margin:0">${st.games_played}</dd></div>
-          <div><dt class="caption" style="color:var(--ink-soft)">مرّات جاسوس</dt><dd class="board__pts" style="margin:0">${st.times_spy}</dd></div>
-          <div><dt class="caption" style="color:var(--ink-soft)">فوز الجاسوس</dt><dd class="board__pts" style="margin:0"><span class="ltr">${rate}%</span></dd></div></dl>`
-          : ''
-      }
-      <div class="form-group">
-        <span class="form-label">حفظ الحساب</span>
-        ${
-          signed
-            ? `<p class="caption">مسجّل بـ <span class="ltr">${esc(u.email)}</span> — أسماؤك وإعداداتك وملفاتك محفوظة في السحابة.</p>${btn('تسجيل الخروج', 'ol-signout', { kind: 'ghost' })}`
-            : o.otp.type
-              ? `<form class="add-row" data-form="ol-otp-verify" autocomplete="one-time-code" novalidate>
-                  <div class="field"><label class="sr-only" for="ol-otp">الرمز</label><input id="ol-otp" class="input ltr" name="token" inputmode="numeric" maxlength="8" placeholder="الرمز من البريد" required></div>
-                  <button class="add-btn" type="submit" aria-label="تأكيد">${icon('check')}</button></form>
-                 <p class="caption">أرسلنا رمزاً إلى <span class="ltr">${esc(o.otp.email)}</span></p>`
-              : `<form class="add-row" data-form="ol-otp-send" novalidate>
-                  <div class="field"><label class="sr-only" for="ol-email">البريد الإلكتروني</label><input id="ol-email" class="input ltr" type="email" name="email" inputmode="email" autocomplete="email" placeholder="name@example.com" required></div>
-                  <button class="add-btn" type="submit" aria-label="أرسل الرمز">${icon('next')}</button></form>
-                 <p class="caption">اختياري: أدخل بريدك لنرسل لك رمز دخول، فتنحفظ نتائجك وملفاتك على كل أجهزتك.</p>`
-        }
-      </div>
-      <div class="form-group">
+        signed || (u && o.customPacks)
+          ? `<div class="form-group">
         <span class="form-label">ملفاتك الخاصة</span>
         ${
           o.customPacks == null
@@ -186,7 +206,7 @@ function profileScreen() {
             : o.customPacks.length
               ? `<ul class="chips">${o.customPacks
                   .map(
-                    (p, i) => `<li class="chip"><span class="chip__num">${p.items.length}</span><span class="chip__name">${esc(p.name_ar)}</span>
+                    (pk, i) => `<li class="chip"><span class="chip__num">${pk.items.length}</span><span class="chip__name">${esc(pk.name_ar)}</span>
                   <button class="icon-btn" data-action="ol-edit-pack" data-i="${i}" aria-label="تعديل">${icon('edit', { size: 20 })}</button>
                   <button class="icon-btn" data-action="ol-del-pack" data-i="${i}" aria-label="حذف">${icon('trash', { size: 20 })}</button></li>`
                   )
@@ -194,7 +214,10 @@ function profileScreen() {
               : '<p class="caption">أنشئ ملفك: أماكن مدرستك، أكلات عائلتك، نكت شلّتكم…</p>'
         }
         ${btn('ملف جديد', 'ol-new-pack', { kind: 'secondary', ic: 'plus' })}
-      </div>
+      </div>`
+          : ''
+      }
+      ${signed ? btn('تسجيل الخروج', 'ol-signout', { kind: 'ghost' }) : ''}
     </div>
   </section>`;
 }
@@ -388,7 +411,11 @@ function joinLink() {
 
 export function after(s, ctx, same) {
   clearInterval(o.tick);
-  if (s.screen === 'online-profile' && !same) loadProfileData(ctx);
+  if (s.screen === 'online-profile' && (!same || !o.profileTried)) {
+    o.profileTried = true;
+    loadProfileData(ctx);
+  }
+  if (s.screen !== 'online-profile') o.profileTried = false;
   if (s.screen === 'online' && (!same || !o.resumeTried)) {
     o.resumeTried = true;
     resumeRoom(ctx);
@@ -400,6 +427,12 @@ export function after(s, ctx, same) {
     bindHold($('#ol-card'), $('#ol-secret'), secretHTML);
     o.tick = setInterval(() => tickTimer(ctx), 250);
   }
+}
+
+export function reloadProfile(ctx) {
+  o.otp = { email: '', type: null };
+  o.needLogin = false;
+  loadProfileData(ctx);
 }
 
 export const keepAwake = () => ['playing', 'voting', 'guess'].includes(o.room?.status);
@@ -472,8 +505,15 @@ async function withBusy(ctx, fn) {
     await fn();
   } catch (e) {
     const err = e.code ? e : toError(e);
-    o.error = errorText(err);
     vibrate([20, 40, 20]);
+    if (err.code === 'need_login') {
+      o.needLogin = true;
+      o.error = '';
+      o.busy = false;
+      toast('سجّل دخولك بالبريد أولاً', 'lock');
+      return ctx.navigate('online-profile');
+    }
+    o.error = errorText(err);
   } finally {
     o.busy = false;
     ctx.render();
@@ -588,7 +628,14 @@ async function resumeRoom(ctx) {
 async function loadProfileData(ctx) {
   if (!navigator.onLine) return;
   try {
-    await connect();
+    const session = await getSession();
+    if (!session) {
+      o.me = null;
+      o.stats = null;
+      if (getState().screen === 'online-profile') ctx.render();
+      return;
+    }
+    o.me = session.user;
     const c = await getClient();
     const [stats, packs] = await Promise.all([fetchStats(c, o.me.id), listCustomPacks(c)]);
     o.stats = stats;
@@ -664,15 +711,19 @@ export async function submit(kind, form, ctx) {
       return ctx.render();
     }
     return withBusy(ctx, async () => {
-      await connect();
       o.otp = { email, type: await sendEmailCode(email) };
     });
   }
   if (kind === 'ol-otp-verify') {
-    const token = String(form.elements.token.value || '').trim();
+    const token = String(form.elements.token.value || '').replace(/\D/g, '');
+    if (token.length < 6) {
+      o.error = 'اكتب الرمز كاملاً (6 أرقام على الأقل).';
+      return ctx.render();
+    }
     return withBusy(ctx, async () => {
       await verifyEmailCode(o.otp.email, token, o.otp.type);
       o.otp = { email: '', type: null };
+      o.needLogin = false;
       o.me = await currentUser();
       const c = await getClient();
       await saveProfile(c, o.me.id, profile()).catch(() => {});
@@ -723,6 +774,10 @@ export async function action(name, el, ctx) {
       return ctx.render();
     case 'ol-minutes':
       o.create.minutes = Number(el.dataset.v);
+      return ctx.render();
+    case 'ol-otp-reset':
+      o.otp = { email: '', type: null };
+      o.error = '';
       return ctx.render();
     case 'ol-avatar':
       setProfile({ avatar: el.dataset.v });
@@ -836,7 +891,12 @@ export function back(s, ctx) {
     ctx.navigate('online-profile');
     return true;
   }
-  if (s.screen === 'online-create' || s.screen === 'online-profile') {
+  if (s.screen === 'online-profile') {
+    ctx.navigate(ctx.ui.accountFrom || 'online');
+    ctx.ui.accountFrom = null;
+    return true;
+  }
+  if (s.screen === 'online-create') {
     ctx.navigate('online');
     return true;
   }

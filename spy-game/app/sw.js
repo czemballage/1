@@ -1,6 +1,6 @@
 // Service worker: cache-first for the app shell and content (100% offline after the first load).
 // Cross-origin requests (Supabase) are not intercepted: they always hit the network.
-const VERSION = 'mj-v1.0.0';
+const VERSION = 'mj-v1.1.0';
 const SHELL = [
   './',
   'index.html',

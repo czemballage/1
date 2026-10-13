@@ -33,14 +33,36 @@ export async function getClient() {
   return loading;
 }
 
-/** Guest-first: reuse the session or create an anonymous one. */
+/** Guest-first: reuse the session or create an anonymous one.
+ *  If the project has anonymous sign-ins turned off, this throws code 'need_login'
+ *  and the UI asks for an email sign-in instead. */
 export async function ensureSession() {
   const c = await getClient();
   const { data } = await c.auth.getSession();
   if (data.session) return data.session;
   const res = await c.auth.signInAnonymously();
-  if (res.error) throw toError(res.error);
+  if (res.error) {
+    const err = toError(res.error);
+    if (err.code === 'anon_disabled') err.code = 'need_login';
+    throw err;
+  }
   return res.data.session;
+}
+
+export async function getSession() {
+  const c = await getClient();
+  const { data } = await c.auth.getSession();
+  return data.session || null;
+}
+
+/** Where the sign-in link in the email brings the player back to. */
+export function redirectUrl() {
+  return location.origin + location.pathname;
+}
+
+/** True when the page was opened from a sign-in email link. */
+export function isAuthRedirect() {
+  return /access_token=|error_description=|[?&]code=|type=(magiclink|signup|email_change|recovery)/.test(location.hash + location.search);
 }
 
 export async function currentUser() {
@@ -61,11 +83,11 @@ export async function sendEmailCode(email) {
   const c = await getClient();
   const user = await currentUser();
   if (user?.is_anonymous) {
-    const { error } = await c.auth.updateUser({ email });
+    const { error } = await c.auth.updateUser({ email }, { emailRedirectTo: redirectUrl() });
     if (error) throw toError(error);
     return 'email_change';
   }
-  const { error } = await c.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+  const { error } = await c.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: redirectUrl() } });
   if (error) throw toError(error);
   return 'email';
 }
@@ -90,7 +112,17 @@ const KNOWN = [
 
 export function toError(e) {
   const msg = String(e?.message || e || '');
-  const code = KNOWN.find((k) => msg.includes(k)) || (/anonymous/i.test(msg) ? 'anon_disabled' : /fetch|network|Failed to/i.test(msg) ? 'network' : 'unknown');
+  const code =
+    KNOWN.find((k) => msg.includes(k)) ||
+    (/anonymous/i.test(msg)
+      ? 'anon_disabled'
+      : /rate limit|too many|seconds/i.test(msg)
+        ? 'email_rate'
+        : /expired|invalid.*(token|otp)|otp.*(expired|invalid)/i.test(msg)
+          ? 'bad_code'
+          : /fetch|network|Failed to/i.test(msg)
+            ? 'network'
+            : 'unknown');
   const err = new Error(msg);
   err.code = code;
   return err;
@@ -109,7 +141,10 @@ export const ERROR_TEXT = {
   not_enough_players: 'تحتاجون 3 لاعبين على الأقل.',
   room_expired: 'انتهت صلاحية الغرفة.',
   self_vote: 'ما تقدر تتّهم نفسك!',
-  anon_disabled: 'الدخول كضيف غير مفعّل على الخادم. استعمل البريد الإلكتروني.',
+  anon_disabled: 'سجّل دخولك بالبريد الإلكتروني أولاً.',
+  need_login: 'سجّل دخولك بالبريد الإلكتروني أولاً حتى تلعب أونلاين.',
+  email_rate: 'طلبت رسائل كثيرة. انتظر دقيقة ثم حاول.',
+  bad_code: 'الرمز غير صحيح أو انتهت صلاحيته. اطلب رسالة جديدة.',
   network: 'تعذّر الاتصال. تحقّق من الإنترنت.',
   unknown: 'حدث خطأ. حاول مرة أخرى.',
 };

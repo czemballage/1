@@ -15,7 +15,10 @@ export function initRouter(onBack) {
   } catch {
     /* sandboxed iframes can throw */
   }
-  window.addEventListener('popstate', () => {
+  window.addEventListener('popstate', (e) => {
+    // Hash changes made by scripts (e.g. the auth SDK cleaning the sign-in token from the URL)
+    // also fire popstate, with no state. Only our own entries count as a back press.
+    if (!e.state || !e.state.mj) return;
     trapped = false;
     if (ignoreNext) {
       ignoreNext = false;

@@ -11,6 +11,7 @@ export function homeScreen(s, ctx) {
       <span class="topbar__meta">FILE Nº ${pad2((rounds % 99) + 1)}</span>
       <span class="topbar__title"></span>
       <span class="net" role="status">${icon('wifiOff', { size: 16 })}بدون إنترنت</span>
+      <button class="icon-btn" data-action="go" data-to="online-profile" aria-label="حسابي">${icon('user')}</button>
       <button class="icon-btn" data-action="go" data-to="prefs" aria-label="الإعدادات">${icon('sliders')}</button>
     </header>
     <div class="home-hero">
