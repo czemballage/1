@@ -142,8 +142,7 @@ function guessScreen(r, ctx) {
   return `<section class="screen" data-screen="guess">
     ${topbar({ title: 'فرصة أخيرة' })}
     <div class="screen__body">
-      <div>${stamp('مكشوف!', { size: '', animate: true })}</div>
-      <h2 class="headline">${esc(spy.name)} جاسوس!</h2>
+      <div class="sheet verdict"><h2>${esc(spy.name)} جاسوس!</h2>${stamp('مكشوف!', { size: 'sm', animate: true })}</div>
       <p class="lead">سلّموه الهاتف. إذا خمّن ${what} صح، يفوز الجواسيس.</p>
       <ul class="pick-grid pick-grid--options">
         ${r.options

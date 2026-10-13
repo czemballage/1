@@ -7,6 +7,7 @@ import { homeScreen, playersScreen, packsScreen, setupScreen } from './ui/setup.
 import { roundScreen, secretHTML, timerParts } from './ui/round.js';
 import { scoreboardScreen, daresScreen, shareScreen, prefsScreen, drawShareCard, shareCanvas } from './ui/extras.js';
 import { unlockAudio, play, vibrate, keepAwake, reducedMotion } from './ui/fx.js';
+import { bindHold } from './ui/hold.js';
 
 // ------------------------------------------------------------------ context
 
@@ -49,7 +50,7 @@ async function loadContent() {
   applyContent(cached && (!bundled || cached.version > bundled.version) ? cached : bundled);
 }
 
-function applyContent(c) {
+function applyContent(c = content) {
   content = c;
   const custom = storage.get('mj:custom-packs', []);
   packs = [...c.packs, ...custom.filter((p) => p.items?.length >= 3).map((p) => ({ ...p, custom: true }))];
@@ -109,7 +110,7 @@ function afterRender(s, same, focusId) {
   keepAwake(inRound || (s.screen.startsWith('online') && online?.keepAwake?.()));
   stopTimer();
   if (s.screen === 'round' && r?.phase === 'discussion') startTimer();
-  if (s.screen === 'round' && r?.phase === 'reveal' && r.revealStep === 'card') bindHold();
+  if (s.screen === 'round' && r?.phase === 'reveal' && r.revealStep === 'card') bindRoundHold();
   if (s.screen === 'players') {
     const inp = $('#pname');
     if (inp && (focusId === 'pname' || ui.focusName)) inp.focus({ preventScroll: true });
@@ -128,6 +129,7 @@ function afterRender(s, same, focusId) {
 function commit(patch) {
   setState(patch);
   render();
+  if (online && ('players' in patch || 'settings' in patch)) online.syncUp?.();
 }
 
 export function navigate(to) {
@@ -267,91 +269,21 @@ function stopTimer() {
 
 // ------------------------------------------------------------------ hold to reveal
 
-function bindHold() {
-  const card = $('#reveal-card');
-  const secret = $('#secret');
-  if (!card) return;
-  let pid = null;
-  let keyDown = false;
-
-  const open = () => {
-    if (card.classList.contains('is-open')) return;
-    secret.innerHTML = secretHTML(getState().round);
-    card.classList.add('is-open');
-    play('reveal');
-    vibrate(15);
+function bindRoundHold() {
+  bindHold($('#reveal-card'), $('#secret'), () => secretHTML(getState().round), () => {
     const r = getState().round;
     if (!r.seen) {
       setState({ round: { ...r, seen: true } });
       const done = $('#card-done');
       if (done) done.disabled = false;
     }
-  };
-  const close = () => {
-    card.classList.remove('is-open');
-    secret.innerHTML = '';
-  };
-
-  card.addEventListener('pointerdown', (e) => {
-    if (pid !== null || (e.pointerType === 'mouse' && e.button !== 0)) return;
-    pid = e.pointerId;
-    try {
-      card.setPointerCapture(pid);
-    } catch {
-      /* ignore */
-    }
-    e.preventDefault();
-    open();
   });
-  card.addEventListener('pointermove', (e) => {
-    if (e.pointerId !== pid) return;
-    const b = card.getBoundingClientRect();
-    const m = 24;
-    const inside = e.clientX > b.left - m && e.clientX < b.right + m && e.clientY > b.top - m && e.clientY < b.bottom + m;
-    if (!inside) {
-      pid = null;
-      close();
-    }
-  });
-  const end = (e) => {
-    if (e.pointerId !== pid) return;
-    pid = null;
-    close();
-  };
-  card.addEventListener('pointerup', end);
-  card.addEventListener('pointercancel', end);
-  card.addEventListener('lostpointercapture', end);
-  card.addEventListener('contextmenu', (e) => e.preventDefault());
-  card.addEventListener('dragstart', (e) => e.preventDefault());
-  card.addEventListener('keydown', (e) => {
-    if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) {
-      e.preventDefault();
-      keyDown = true;
-      open();
-    }
-  });
-  card.addEventListener('keyup', (e) => {
-    if (keyDown && (e.key === ' ' || e.key === 'Enter')) {
-      keyDown = false;
-      close();
-    }
-  });
-  card.addEventListener('blur', close);
 }
 
-// Hide any open card if the page is hidden or loses focus.
-window.addEventListener('blur', () => $('#reveal-card')?.classList.contains('is-open') && ($('#reveal-card').classList.remove('is-open'), ($('#secret').innerHTML = '')));
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') {
-    const c = $('#reveal-card');
-    if (c) {
-      c.classList.remove('is-open');
-      $('#secret').innerHTML = '';
-    }
-  } else {
-    const s = getState();
-    if (s.screen === 'round' && s.round?.phase === 'discussion') render();
-  }
+  if (document.visibilityState !== 'visible') return;
+  const s = getState();
+  if (s.screen === 'round' && s.round?.phase === 'discussion') render();
 });
 
 // ------------------------------------------------------------------ actions

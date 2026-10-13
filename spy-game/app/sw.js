@@ -1,5 +1,5 @@
-// Service worker: cache-first for the app shell and content (100% offline after the first load),
-// network-first for Supabase (online features), never caching auth or realtime traffic.
+// Service worker: cache-first for the app shell and content (100% offline after the first load).
+// Cross-origin requests (Supabase) are not intercepted: they always hit the network.
 const VERSION = 'mj-v1.0.0';
 const SHELL = [
   './',
@@ -21,6 +21,8 @@ const SHELL = [
   'js/ui/round.js',
   'js/ui/extras.js',
   'js/ui/online.js',
+  'js/ui/hold.js',
+  'assets/vendor/qrcode.js',
   'js/config.js',
   'content/packs.json',
   'assets/fonts/reem-kufi-700-arabic.woff2',
@@ -59,23 +61,8 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // Supabase & other APIs: network-first, fall back to cache for public GETs (packs).
-  if (url.hostname.endsWith('.supabase.co')) {
-    if (url.pathname.startsWith('/auth/') || url.pathname.startsWith('/realtime/')) return;
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          if (res.ok && url.pathname.startsWith('/rest/v1/packs')) {
-            const copy = res.clone();
-            caches.open(VERSION + '-api').then((c) => c.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() => caches.match(req).then((r) => r || Response.error()))
-    );
-    return;
-  }
-
+  // Supabase and every other origin go straight to the network (auth, realtime, RPC must never be cached).
+  // Downloaded packs are cached by the app itself in localStorage.
   if (url.origin !== self.location.origin) return;
 
   // Navigations (including ?room=ABCD deep links) → cached app shell.
