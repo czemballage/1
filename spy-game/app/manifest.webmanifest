@@ -1,0 +1,21 @@
+{
+  "name": "مين الجاسوس؟",
+  "short_name": "مين الجاسوس",
+  "description": "لعبة جماعية عربية لكشف الجاسوس — هاتف واحد، من 3 إلى 12 لاعباً، تعمل بدون إنترنت.",
+  "lang": "ar",
+  "dir": "rtl",
+  "id": "./",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1C1A17",
+  "theme_color": "#1C1A17",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
