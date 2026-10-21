@@ -376,3 +376,10 @@ h2 {
     flex-direction: column;
   }
 }
+
+.chip-small {
+  font-size: 12px;
+  min-height: 32px;
+  padding: 6px 10px;
+  color: var(--text);
+}
