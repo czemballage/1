@@ -8,22 +8,6 @@ var life := 3.0
 
 
 func _ready() -> void:
-	var mi := MeshInstance3D.new()
-	var m := SphereMesh.new()
-	m.radius = 0.25
-	m.height = 0.5
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(1, 0.85, 0.2)
-	mat.emission_enabled = true
-	mat.emission = Color(1, 0.7, 0.1)
-	m.material = mat
-	mi.mesh = m
-	add_child(mi)
-	var cs := CollisionShape3D.new()
-	var s := SphereShape3D.new()
-	s.radius = 0.3
-	cs.shape = s
-	add_child(cs)
 	body_entered.connect(_on_body)
 
 
