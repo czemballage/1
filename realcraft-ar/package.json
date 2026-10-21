@@ -1,0 +1,21 @@
+{
+  "name": "realcraft-ar",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "REALCRAFT AR — voxel building game for the web with WebXR augmented reality and a 3D sandbox fallback",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host"
+  },
+  "dependencies": {
+    "three": "^0.186.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.186.0",
+    "@types/webxr": "^0.5.22",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.0"
+  }
+}

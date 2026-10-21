@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f1720" />
+    <meta name="description" content="REALCRAFT AR — لعبة بناء بالمكعبات تعمل من المتصفح، مع واقع معزز حقيقي عند دعم WebXR ووضع ثلاثي الأبعاد بديل." />
+    <title>REALCRAFT AR</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3 28 10v12L16 29 4 22V10z' fill='%2342c28a'/%3E%3Cpath d='M16 16v13L4 22V10z' fill='%23b68a52'/%3E%3Cpath d='M16 16v13l12-7V10z' fill='%2380848a'/%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+
+    <!-- Single root: also used as the WebXR DOM-overlay root so the HUD stays visible in AR. -->
+    <div id="ui">
+      <!-- HUD -->
+      <div id="hud" hidden>
+        <div class="topbar">
+          <button id="btn-menu" class="chip" aria-label="القائمة">☰ القائمة</button>
+          <span id="mode-label" class="chip chip-info"></span>
+          <button id="btn-replace" class="chip" hidden>📍 إعادة التثبيت</button>
+          <button id="btn-reset" class="chip chip-danger" aria-label="إعادة ضبط العالم">🗑 إعادة ضبط</button>
+        </div>
+        <div id="crosshair" hidden></div>
+        <div id="hint" class="hint" hidden></div>
+        <div class="bottombar">
+          <button id="btn-tool" class="tool" aria-label="تبديل الأداة"></button>
+          <div id="hotbar" class="hotbar" role="toolbar" aria-label="المكعبات"></div>
+        </div>
+      </div>
+
+      <!-- Home -->
+      <section id="home" class="screen">
+        <div class="panel">
+          <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M32 6 56 20v24L32 58 8 44V20z" fill="#42c28a" />
+            <path d="M32 32v26L8 44V20z" fill="#b68a52" />
+            <path d="M32 32v26l24-14V20z" fill="#80848a" />
+            <path d="M32 6 56 20 32 32 8 20z" fill="#7ee0a8" />
+          </svg>
+          <h1>REALCRAFT <span>AR</span></h1>
+          <p class="tagline">ابنِ بالمكعبات فوق أسطح غرفتك الحقيقية</p>
+          <button id="btn-start" class="btn btn-primary">ابدأ اللعب</button>
+          <button id="btn-sandbox" class="btn" hidden>الوضع العادي (بدون كاميرا)</button>
+          <button id="btn-help" class="btn btn-ghost">كيف ألعب؟</button>
+          <p id="ar-status" class="status">جارٍ فحص دعم الواقع المعزز…</p>
+        </div>
+      </section>
+
+      <!-- Help -->
+      <section id="help" class="screen" hidden>
+        <div class="panel">
+          <h2>كيف تلعب؟</h2>
+          <ol class="steps">
+            <li><b>الواقع المعزز:</b> وجّه الهاتف نحو سطح مستوٍ (طاولة أو أرض) وحرّكه ببطء حتى تظهر الحلقة الخضراء، ثم اضغط لتثبيت عالمك.</li>
+            <li><b>الوضع العادي:</b> اسحب للدوران، واستخدم إصبعين للتقريب والتحريك، واضغط على الأسطح للبناء.</li>
+            <li>اختر المكعب من الشريط السفلي، واضغط زر الأداة للتبديل بين <b>وضع</b> و<b>تكسير</b>.</li>
+            <li>في الواقع المعزز تُوضع المكعبات عند علامة <b>+</b> في منتصف الشاشة.</li>
+            <li>تكسير المكعب يعيده إلى مخزونك، ويُحفظ البناء تلقائيًا في هذا الجهاز.</li>
+          </ol>
+          <p class="note">على الكمبيوتر: نقرة يسار = الأداة الحالية، نقرة يمين = تكسير، مفاتيح 1–4 = المكعبات، Q = تبديل الأداة.</p>
+          <button id="btn-help-close" class="btn btn-primary">فهمت</button>
+        </div>
+      </section>
+
+      <!-- Error -->
+      <section id="error" class="screen" hidden>
+        <div class="panel">
+          <h2>تعذّر المتابعة</h2>
+          <p id="error-text"></p>
+          <button id="btn-error-sandbox" class="btn btn-primary">العب بالوضع العادي</button>
+          <button id="btn-error-close" class="btn btn-ghost">إغلاق</button>
+        </div>
+      </section>
+
+      <!-- Reset confirmation -->
+      <section id="confirm" class="screen screen-dim" hidden>
+        <div class="panel">
+          <h2>إعادة ضبط العالم؟</h2>
+          <p>سيتم حذف كل المكعبات المبنية وإعادة المخزون إلى حالته الابتدائية. لا يمكن التراجع.</p>
+          <button id="btn-confirm-yes" class="btn btn-danger">نعم، احذف كل شيء</button>
+          <button id="btn-confirm-no" class="btn btn-ghost">إلغاء</button>
+        </div>
+      </section>
+
+      <div id="toast" class="toast" hidden></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
