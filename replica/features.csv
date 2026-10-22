@@ -1,0 +1,13 @@
+feature,area,priority,original,clone,notes
+Brush and eraser,draw,must,yes,yes,
+Color picker and size,draw,must,yes,yes,
+Undo/redo,draw,must,yes,yes,per frame
+Add/duplicate/delete frame,timeline,must,yes,yes,
+Frame strip with thumbnails,timeline,must,yes,yes,
+Onion skin before/after,timeline,must,yes,yes,tinted
+Playback with FPS and loop,playback,must,yes,yes,
+Export video,export,should,yes,yes,WebM
+Export PNG frame,export,should,yes,yes,
+Autosave,project,should,yes,yes,localStorage
+Multiple layers,draw,could,yes,no,paid tier original
+Audio,playback,could,yes,no,skip: licensed

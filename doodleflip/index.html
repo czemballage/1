@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Doodleflip</title>
+<style>
+:root{--bg:#1f2330;--panel:#2a3042;--ink:#f2f4f8;--accent:#ff7a59;--mute:#8b93a8}
+*{box-sizing:border-box;touch-action:none}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px system-ui,sans-serif;display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+header{display:flex;gap:8px;align-items:center;padding:8px 12px;background:var(--panel);flex-wrap:wrap}
+header h1{font-size:16px;margin:0 8px 0 0;color:var(--accent)}
+button,input,label{font:inherit;color:var(--ink)}
+button{background:#3a4258;border:0;border-radius:8px;padding:8px 12px;cursor:pointer;touch-action:manipulation}
+button.on{background:var(--accent);color:#1b1b1b}
+button:disabled{opacity:.4}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:8px;min-height:0}
+#stage{position:relative;max-width:100%;max-height:100%;aspect-ratio:16/9;height:100%;background:#fff;border-radius:6px;box-shadow:0 4px 24px #0008}
+#stage canvas{position:absolute;inset:0;width:100%;height:100%}
+#tools{display:flex;gap:10px;align-items:center;padding:6px 12px;background:var(--panel);flex-wrap:wrap}
+#tools label{display:flex;gap:6px;align-items:center;color:var(--mute)}
+input[type=range]{width:90px;touch-action:auto}
+input[type=color]{width:36px;height:30px;border:0;background:none;padding:0}
+#strip{display:flex;gap:8px;padding:8px 12px;overflow-x:auto;background:var(--panel);touch-action:pan-x}
+.th{flex:none;width:96px;height:54px;background:#fff;border:3px solid transparent;border-radius:4px;position:relative;cursor:pointer}
+.th.sel{border-color:var(--accent)}
+.th canvas{width:100%;height:100%;display:block}
+.th span{position:absolute;left:2px;bottom:0;font-size:10px;color:#333;background:#fffa;padding:0 3px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Doodleflip</h1>
+  <button id="play">▶ Play</button>
+  <label>FPS <input id="fps" type="range" min="1" max="30" value="12"><b id="fpsv">12</b></label>
+  <label><input id="loop" type="checkbox" checked> Loop</label>
+  <button id="png">PNG</button>
+  <button id="webm">Export video</button>
+  <button id="clear">Clear project</button>
+</header>
+<main><div id="stage"><canvas id="onion"></canvas><canvas id="draw"></canvas></div></main>
+<div id="tools">
+  <button id="pen" class="on">Pen</button>
+  <button id="eraser">Eraser</button>
+  <input id="color" type="color" value="#222222">
+  <label>Size <input id="size" type="range" min="1" max="60" value="6"></label>
+  <button id="undo">Undo</button><button id="redo">Redo</button>
+  <button id="onionbtn" class="on">Onion skin</button>
+  <label>Before/after <input id="oframes" type="range" min="1" max="3" value="1"></label>
+  <button id="add">+ Frame</button><button id="dup">Duplicate</button><button id="del">Delete</button>
+</div>
+<div id="strip"></div>
+<script>
+const W=1280,H=720;
+const $=id=>document.getElementById(id);
+const draw=$('draw'),onion=$('onion'),dctx=draw.getContext('2d'),octx=onion.getContext('2d');
+draw.width=onion.width=W;draw.height=onion.height=H;
+const newCanvas=()=>{const c=document.createElement('canvas');c.width=W;c.height=H;return c};
+const newFrame=()=>({c:newCanvas(),undo:[],redo:[]});
+let frames=[newFrame()],cur=0,tool='pen',onionOn=true,playing=false,timer=null;
+
+function render(){
+  dctx.clearRect(0,0,W,H);dctx.drawImage(frames[cur].c,0,0);
+  octx.clearRect(0,0,W,H);
+  if(onionOn&&!playing){
+    const n=+$('oframes').value;
+    for(let k=1;k<=n;k++){
+      const a=.35/k;
+      ghost(cur-k,'#ff3b30',a);ghost(cur+k,'#2f80ff',a);
+    }
+  }
+}
+function ghost(i,col,a){
+  if(i<0||i>=frames.length)return;
+  const t=newCanvas(),x=t.getContext('2d');
+  x.drawImage(frames[i].c,0,0);x.globalCompositeOperation='source-in';x.fillStyle=col;x.fillRect(0,0,W,H);
+  octx.globalAlpha=a*2;octx.drawImage(t,0,0);octx.globalAlpha=1;
+}
+function thumbs(){
+  const s=$('strip');s.innerHTML='';
+  frames.forEach((f,i)=>{
+    const d=document.createElement('div');d.className='th'+(i===cur?' sel':'');
+    const c=document.createElement('canvas');c.width=192;c.height=108;
+    const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,192,108);x.drawImage(f.c,0,0,192,108);
+    d.append(c);const l=document.createElement('span');l.textContent=i+1;d.append(l);
+    d.onclick=()=>{if(!playing){cur=i;thumbs();render()}};
+    s.append(d);
+  });
+  const sel=s.querySelector('.sel');if(sel)sel.scrollIntoView({inline:'nearest',block:'nearest'});
+  $('del').disabled=frames.length<2;
+}
+let drawing=false,last=null;
+const pos=e=>{const r=draw.getBoundingClientRect();return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height,p:e.pressure>0&&e.pointerType==='pen'?e.pressure:.5}};
+function snap(){const f=frames[cur];f.undo.push(f.c.toDataURL());if(f.undo.length>30)f.undo.shift();f.redo=[]}
+function stroke(a,b){
+  const x=frames[cur].c.getContext('2d');
+  x.lineCap=x.lineJoin='round';
+  x.globalCompositeOperation=tool==='eraser'?'destination-out':'source-over';
+  x.strokeStyle=$('color').value;
+  x.lineWidth=+$('size').value*(tool==='pen'?.5+b.p:1);
+  x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke();
+  dctx.clearRect(0,0,W,H);dctx.drawImage(frames[cur].c,0,0);
+}
+draw.addEventListener('pointerdown',e=>{if(playing)return;draw.setPointerCapture(e.pointerId);snap();drawing=true;last=pos(e);stroke(last,{x:last.x+.01,y:last.y,p:last.p})});
+draw.addEventListener('pointermove',e=>{if(!drawing)return;const p=pos(e);stroke(last,p);last=p});
+const end=()=>{if(drawing){drawing=false;saveSoon();thumbs()}};
+draw.addEventListener('pointerup',end);draw.addEventListener('pointercancel',end);
+
+function restore(url,cb){const im=new Image();im.onload=()=>{const x=frames[cur].c.getContext('2d');x.globalCompositeOperation='source-over';x.clearRect(0,0,W,H);x.drawImage(im,0,0);cb()};im.src=url}
+$('undo').onclick=()=>{const f=frames[cur];if(!f.undo.length)return;f.redo.push(f.c.toDataURL());restore(f.undo.pop(),()=>{render();thumbs();saveSoon()})};
+$('redo').onclick=()=>{const f=frames[cur];if(!f.redo.length)return;f.undo.push(f.c.toDataURL());restore(f.redo.pop(),()=>{render();thumbs();saveSoon()})};
+$('add').onclick=()=>{frames.splice(cur+1,0,newFrame());cur++;thumbs();render();saveSoon()};
+$('dup').onclick=()=>{const f=newFrame();f.c.getContext('2d').drawImage(frames[cur].c,0,0);frames.splice(cur+1,0,f);cur++;thumbs();render();saveSoon()};
+$('del').onclick=()=>{if(frames.length<2)return;frames.splice(cur,1);cur=Math.min(cur,frames.length-1);thumbs();render();saveSoon()};
+$('clear').onclick=()=>{if(confirm('Delete the whole project?')){frames=[newFrame()];cur=0;thumbs();render();saveSoon()}};
+function setTool(t){tool=t;$('pen').classList.toggle('on',t==='pen');$('eraser').classList.toggle('on',t==='eraser')}
+$('pen').onclick=()=>setTool('pen');$('eraser').onclick=()=>setTool('eraser');
+$('onionbtn').onclick=e=>{onionOn=!onionOn;e.target.classList.toggle('on',onionOn);render()};
+$('oframes').oninput=render;
+$('fps').oninput=e=>{$('fpsv').textContent=e.target.value;if(playing){stopPlay();startPlay()}};
+
+function startPlay(){
+  playing=true;$('play').textContent='■ Stop';$('play').classList.add('on');render();
+  timer=setInterval(()=>{
+    if(cur>=frames.length-1){if($('loop').checked)cur=0;else return stopPlay()}else cur++;
+    thumbs();render();
+  },1000/+$('fps').value);
+}
+function stopPlay(){playing=false;clearInterval(timer);$('play').textContent='▶ Play';$('play').classList.remove('on');render()}
+$('play').onclick=()=>playing?stopPlay():startPlay();
+
+function flat(i){const c=newCanvas(),x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,H);x.drawImage(frames[i].c,0,0);return c}
+$('png').onclick=()=>{flat(cur).toBlob(b=>dl(b,'doodleflip-frame-'+(cur+1)+'.png'))};
+function dl(b,n){const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}
+$('webm').onclick=async()=>{
+  if(!window.MediaRecorder){alert('Video export is not supported in this browser.');return}
+  if(playing)stopPlay();
+  const btn=$('webm');btn.disabled=true;btn.textContent='Exporting…';
+  const out=newCanvas(),ox=out.getContext('2d');
+  const rec=new MediaRecorder(out.captureStream(30),{mimeType:MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm'});
+  const parts=[];rec.ondataavailable=e=>parts.push(e.data);
+  const done=new Promise(r=>rec.onstop=r);
+  rec.start();
+  const dt=1000/+$('fps').value;
+  for(let i=0;i<frames.length;i++){ox.drawImage(flat(i),0,0);await new Promise(r=>setTimeout(r,dt))}
+  rec.stop();await done;
+  dl(new Blob(parts,{type:'video/webm'}),'doodleflip.webm');
+  btn.disabled=false;btn.textContent='Export video';
+};
+
+let st=null;
+function saveSoon(){clearTimeout(st);st=setTimeout(()=>{try{localStorage.setItem('doodleflip',JSON.stringify({cur,fps:$('fps').value,frames:frames.map(f=>f.c.toDataURL('image/webp',.8))}))}catch(e){}},600)}
+async function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem('doodleflip')||'null');
+    if(!d||!d.frames.length)return;
+    $('fps').value=d.fps;$('fpsv').textContent=d.fps;
+    frames=await Promise.all(d.frames.map(u=>new Promise(r=>{const f=newFrame(),im=new Image();im.onload=()=>{f.c.getContext('2d').drawImage(im,0,0);r(f)};im.src=u})));
+    cur=Math.min(d.cur||0,frames.length-1);
+  }catch(e){}
+}
+window.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;
+  if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();$(e.shiftKey?'redo':'undo').click()}
+  else if(e.key===' '){e.preventDefault();$('play').click()}
+  else if(e.key==='ArrowLeft'&&cur>0&&!playing){cur--;thumbs();render()}
+  else if(e.key==='ArrowRight'&&cur<frames.length-1&&!playing){cur++;thumbs();render()}});
+load().then(()=>{thumbs();render()});
+</script>
+</body>
+</html>
