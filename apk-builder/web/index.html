@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTML to APK</title>
+<meta name="description" content="Turn your HTML website into an installable Android APK in a few minutes.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2316a34a'/><path d='M20 26h24v20a4 4 0 0 1-4 4H24a4 4 0 0 1-4-4z' fill='white'/><circle cx='27' cy='19' r='2.5' fill='white'/><circle cx='37' cy='19' r='2.5' fill='white'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+  :root {
+    --bg: #f6f7f9; --surface: #ffffff; --surface-2: #f1f3f5; --border: #e3e6ea;
+    --text: #15181c; --muted: #5f6b7a; --accent: #16a34a; --accent-strong: #15803d;
+    --accent-soft: #e8f6ee; --danger: #c62828; --danger-soft: #fdecec;
+    --shadow: 0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.06);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1214; --surface: #171b1f; --surface-2: #1f2429; --border: #2b3137;
+      --text: #e9edf1; --muted: #9aa5b1; --accent: #22c55e; --accent-strong: #4ade80;
+      --accent-soft: #14281c; --danger: #f87171; --danger-soft: #2c1517;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 16px 64px; }
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  header .logo { width: 40px; height: 40px; flex: none; }
+  h1 { font-size: 26px; margin: 0; letter-spacing: -.02em; }
+  .lead { color: var(--muted); margin: 4px 0 28px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); padding: 22px; margin-bottom: 18px; }
+  .card h2 { font-size: 16px; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
+  .step { width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-strong); font-size: 13px; font-weight: 700; display: inline-grid; place-items: center; }
+  .tabs { display: flex; gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 10px; margin-bottom: 16px; }
+  .tabs button { flex: 1; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 500; padding: 8px 6px; border-radius: 7px; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .drop { border: 2px dashed var(--border); border-radius: 12px; padding: 28px 16px; text-align: center; color: var(--muted); transition: border-color .15s, background .15s; }
+  .drop.over { border-color: var(--accent); background: var(--accent-soft); }
+  .drop strong { color: var(--text); display: block; font-size: 16px; margin-bottom: 4px; }
+  .drop .actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+  .file-summary { margin-top: 12px; padding: 10px 12px; background: var(--surface-2); border-radius: 8px; font-size: 14px; display: none; justify-content: space-between; gap: 8px; align-items: center; }
+  .file-summary.show { display: flex; }
+  .file-summary span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  label { display: block; font-weight: 500; font-size: 14px; margin-bottom: 6px; }
+  .hint { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  input[type=text], input[type=url], input[type=number], input[type=password], textarea {
+    width: 100%; font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 9px 11px; outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  textarea { min-height: 180px; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; resize: vertical; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid .full { grid-column: 1 / -1; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  .icon-row { display: flex; align-items: center; gap: 14px; }
+  .icon-preview { width: 64px; height: 64px; border-radius: 16px; flex: none; border: 1px solid var(--border); background: var(--surface-2); overflow: hidden; }
+  .icon-preview canvas { width: 100%; height: 100%; display: block; }
+  .color-row { display: flex; align-items: center; gap: 10px; }
+  input[type=color] { width: 44px; height: 38px; border: 1px solid var(--border); border-radius: 8px; padding: 3px; background: var(--surface); cursor: pointer; }
+  .btn { font: inherit; font-weight: 600; border-radius: 9px; padding: 9px 16px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .btn:hover { background: var(--surface-2); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+  .btn.big { width: 100%; padding: 14px; font-size: 16px; }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn.link { border: 0; background: none; color: var(--accent-strong); padding: 0; font-weight: 500; }
+  .error { background: var(--danger-soft); color: var(--danger); border-radius: 8px; padding: 10px 12px; margin-top: 12px; font-size: 14px; display: none; }
+  .error.show { display: block; }
+  .progress { display: none; }
+  .progress.show { display: block; }
+  .steps { list-style: none; padding: 0; margin: 0 0 6px; }
+  .steps li { display: flex; align-items: center; gap: 10px; padding: 7px 0; color: var(--muted); }
+  .steps li .dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); flex: none; display: grid; place-items: center; }
+  .steps li.active { color: var(--text); font-weight: 500; }
+  .steps li.active .dot { border-color: var(--accent); border-top-color: transparent; animation: spin 0.9s linear infinite; }
+  .steps li.done { color: var(--text); }
+  .steps li.done .dot { background: var(--accent); border-color: var(--accent); }
+  .steps li.done .dot::after { content: ""; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-1px, -1px); }
+  .steps li.failed .dot { background: var(--danger); border-color: var(--danger); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .meta { color: var(--muted); font-size: 13px; }
+  .result { display: none; gap: 20px; align-items: center; margin-top: 10px; }
+  .result.show { display: flex; }
+  .result .qr { background: #fff; padding: 8px; border-radius: 10px; border: 1px solid var(--border); flex: none; }
+  .result .qr img { display: block; width: 132px; height: 132px; }
+  @media (max-width: 560px) { .result.show { flex-direction: column; align-items: stretch; } .result .qr { align-self: center; } }
+  details { margin-top: 14px; }
+  summary { cursor: pointer; font-weight: 500; }
+  .notice { font-size: 13px; color: var(--muted); margin-top: 12px; }
+  .hidden { display: none !important; }
+  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 28px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#16a34a"/><path d="M20 26h24v20a4 4 0 0 1-4 4H24a4 4 0 0 1-4-4z" fill="#fff"/><circle cx="27" cy="19" r="2.5" fill="#fff"/><circle cx="37" cy="19" r="2.5" fill="#fff"/><path d="M23 13l3 4M41 13l-3 4" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+    <h1>HTML to APK</h1>
+  </header>
+  <p class="lead">Upload your website, choose a name and icon, and get an installable Android app in about 3 minutes.</p>
+
+  <div id="setupWarning" class="card error hidden" style="display:block"></div>
+
+  <form id="form" novalidate>
+    <section class="card">
+      <h2><span class="step">1</span> Your website</h2>
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" data-mode="files" aria-selected="true">Upload files</button>
+        <button type="button" role="tab" data-mode="paste" aria-selected="false">Paste HTML</button>
+        <button type="button" role="tab" data-mode="url" aria-selected="false">Website URL</button>
+      </div>
+
+      <div data-panel="files">
+        <div class="drop" id="drop">
+          <strong>Drop your files here</strong>
+          An .html file, a .zip of your site, or a whole folder (with CSS, JS and images)
+          <div class="actions">
+            <button type="button" class="btn" id="pickFiles">Choose files</button>
+            <button type="button" class="btn" id="pickFolder">Choose folder</button>
+          </div>
+          <input type="file" id="fileInput" multiple hidden accept=".html,.htm,.zip,.css,.js,.json,.png,.jpg,.jpeg,.gif,.svg,.webp,.ico,.woff,.woff2,.ttf,.mp3,.mp4">
+          <input type="file" id="folderInput" webkitdirectory multiple hidden>
+        </div>
+        <div class="file-summary" id="fileSummary"><span id="fileSummaryText"></span><button type="button" class="btn link" id="clearFiles">Remove</button></div>
+      </div>
+
+      <div data-panel="paste" class="hidden">
+        <label for="htmlInput">HTML code</label>
+        <textarea id="htmlInput" spellcheck="false" placeholder="<!doctype html>&#10;<html>&#10;  <body>&#10;    <h1>Hello Android!</h1>&#10;  </body>&#10;</html>"></textarea>
+        <p class="hint">Saved as index.html. Links to online CSS, fonts and scripts keep working when the phone is online.</p>
+      </div>
+
+      <div data-panel="url" class="hidden">
+        <label for="urlInput">Website address</label>
+        <input type="url" id="urlInput" placeholder="https://example.com" inputmode="url" autocomplete="url">
+        <p class="hint">The app opens this website. It needs an internet connection and always shows your latest version.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">2</span> App details</h2>
+      <div class="grid">
+        <div class="full">
+          <label for="appName">App name</label>
+          <input type="text" id="appName" maxlength="50" placeholder="My App" required>
+        </div>
+        <div class="full">
+          <label>App icon</label>
+          <div class="icon-row">
+            <div class="icon-preview"><canvas id="iconCanvas" width="192" height="192"></canvas></div>
+            <div>
+              <button type="button" class="btn" id="pickIcon">Upload icon</button>
+              <button type="button" class="btn link hidden" id="clearIcon" style="margin-left:10px">Use default</button>
+              <p class="hint">Square PNG or JPG, at least 192 × 192. Leave empty to use the first letter of the name.</p>
+              <input type="file" id="iconInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label for="themeColor">Theme color</label>
+          <div class="color-row">
+            <input type="color" id="themeColor" value="#16a34a">
+            <input type="text" id="themeColorText" value="#16a34a" maxlength="7" aria-label="Theme color hex">
+          </div>
+          <p class="hint">Used for the status bar and default icon.</p>
+        </div>
+        <div>
+          <label for="packageId">Package ID</label>
+          <input type="text" id="packageId" placeholder="com.myapp.app" autocapitalize="off" spellcheck="false">
+          <p class="hint">Unique ID. Keep it the same for updates.</p>
+        </div>
+      </div>
+      <details>
+        <summary>Version</summary>
+        <div class="grid" style="margin-top:12px">
+          <div>
+            <label for="versionName">Version name</label>
+            <input type="text" id="versionName" value="1.0.0">
+          </div>
+          <div>
+            <label for="versionCode">Version code</label>
+            <input type="number" id="versionCode" value="1" min="1" step="1">
+            <p class="hint">Increase it for every update.</p>
+          </div>
+        </div>
+      </details>
+      <div id="accessRow" class="hidden" style="margin-top:14px">
+        <label for="accessCode">Access code</label>
+        <input type="password" id="accessCode" autocomplete="off">
+      </div>
+    </section>
+
+    <button class="btn primary big" id="buildBtn" type="submit">Build APK</button>
+    <div class="error" id="formError" role="alert"></div>
+    <p class="notice">Files are built on a public GitHub repository, so don't upload passwords or private data. Download links expire after 24 hours.</p>
+  </form>
+
+  <section class="card progress" id="progress" aria-live="polite">
+    <h2><span class="step">3</span> <span id="progressTitle">Building your app</span></h2>
+    <ul class="steps">
+      <li data-step="upload"><span class="dot"></span>Uploading files</li>
+      <li data-step="queued"><span class="dot"></span>Waiting for a build machine</li>
+      <li data-step="building"><span class="dot"></span>Building the Android app</li>
+      <li data-step="done"><span class="dot"></span>Ready to install</li>
+    </ul>
+    <p class="meta" id="elapsed"></p>
+    <div class="error" id="buildError"></div>
+    <div class="result" id="result">
+      <div class="qr" id="qr"></div>
+      <div>
+        <a class="btn primary" id="downloadLink" href="#" download>Download APK</a>
+        <p class="meta" id="apkMeta" style="margin:8px 0 0"></p>
+        <p class="hint">Scan the code with your phone to download. To install, allow “Install unknown apps” for your browser when Android asks.</p>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap">
+      <button class="btn" id="newBuild" type="button">Build another app</button>
+      <a class="btn link hidden" id="logsLink" target="_blank" rel="noopener">View build log</a>
+    </div>
+  </section>
+
+  <footer>Apps are built with the official Android tools and signed automatically.</footer>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const state = { mode: "files", files: [], iconImage: null, maxSiteBytes: 3 * 1024 * 1024, poll: null, startedAt: 0 };
+  const STORAGE_KEY = "html2apk.build";
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; } },
+    set(v) { try { v ? localStorage.setItem(STORAGE_KEY, JSON.stringify(v)) : localStorage.removeItem(STORAGE_KEY); } catch {} },
+  };
+
+  // ----- server config -----
+  fetch("/api/config").then((r) => r.json()).then((c) => {
+    state.maxSiteBytes = c.maxSiteBytes || state.maxSiteBytes;
+    $("accessRow").classList.toggle("hidden", !c.accessCodeRequired);
+    if (!c.configured) {
+      const w = $("setupWarning");
+      w.textContent = "This site is not set up yet: the GITHUB_TOKEN environment variable is missing on Vercel.";
+      w.classList.remove("hidden");
+    }
+  }).catch(() => {});
+
+  // ----- tabs -----
+  document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => {
+    state.mode = b.dataset.mode;
+    document.querySelectorAll(".tabs button").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+    document.querySelectorAll("[data-panel]").forEach((p) => p.classList.toggle("hidden", p.dataset.panel !== state.mode));
+  }));
+
+  // ----- files -----
+  $("pickFiles").onclick = () => $("fileInput").click();
+  $("pickFolder").onclick = () => $("folderInput").click();
+  $("fileInput").onchange = (e) => setFiles([...e.target.files].map((f) => ({ file: f, path: f.name })));
+  $("folderInput").onchange = (e) => setFiles([...e.target.files].map((f) => ({ file: f, path: f.webkitRelativePath || f.name })));
+  $("clearFiles").onclick = () => setFiles([]);
+
+  const drop = $("drop");
+  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", async (e) => {
+    e.preventDefault();
+    drop.classList.remove("over");
+    const entries = [...e.dataTransfer.items].map((i) => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
+    if (entries.length) {
+      const out = [];
+      for (const entry of entries) await walkEntry(entry, "", out);
+      setFiles(out);
+    } else {
+      setFiles([...e.dataTransfer.files].map((f) => ({ file: f, path: f.name })));
+    }
+  });
+
+  async function walkEntry(entry, prefix, out) {
+    if (entry.isFile) {
+      const file = await new Promise((res, rej) => entry.file(res, rej));
+      out.push({ file, path: prefix + entry.name });
+    } else if (entry.isDirectory) {
+      const reader = entry.createReader();
+      let batch;
+      do {
+        batch = await new Promise((res, rej) => reader.readEntries(res, rej));
+        for (const child of batch) await walkEntry(child, prefix + entry.name + "/", out);
+      } while (batch.length);
+    }
+  }
+
+  function setFiles(files) {
+    state.files = files.filter((f) => !/(^|\/)(\.DS_Store|__MACOSX|\.git)(\/|$)/.test(f.path));
+    $("fileInput").value = "";
+    $("folderInput").value = "";
+    const s = $("fileSummary");
+    if (!state.files.length) { s.classList.remove("show"); return; }
+    const total = state.files.reduce((n, f) => n + f.file.size, 0);
+    const html = state.files.filter((f) => /\.html?$/i.test(f.path)).length;
+    const isZip = state.files.length === 1 && /\.zip$/i.test(state.files[0].path);
+    $("fileSummaryText").textContent = isZip
+      ? `${state.files[0].path} · ${formatBytes(total)}`
+      : `${state.files.length} file${state.files.length > 1 ? "s" : ""} · ${html} HTML · ${formatBytes(total)}`;
+    s.classList.add("show");
+    if (!$("appName").value) {
+      const guess = (state.files[0].path.split("/")[0] || "").replace(/\.(zip|html?)$/i, "").replace(/[-_]+/g, " ").trim();
+      if (guess && guess.toLowerCase() !== "index") { $("appName").value = guess.slice(0, 50); onNameChange(); }
+    }
+  }
+
+  // ----- name, package id, colors, icon -----
+  let packageEdited = false;
+  $("packageId").addEventListener("input", () => { packageEdited = true; });
+  $("appName").addEventListener("input", onNameChange);
+  function onNameChange() {
+    if (!packageEdited) {
+      const slug = $("appName").value.normalize("NFKD").toLowerCase().replace(/[^a-z0-9]+/g, "").replace(/^[0-9]+/, "").slice(0, 30);
+      $("packageId").value = slug ? `com.${slug}.app` : "";
+    }
+    drawIcon();
+  }
+  $("themeColor").addEventListener("input", () => { $("themeColorText").value = $("themeColor").value; drawIcon(); });
+  $("themeColorText").addEventListener("input", () => {
+    const v = $("themeColorText").value.trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) { $("themeColor").value = v; drawIcon(); }
+  });
+
+  $("pickIcon").onclick = () => $("iconInput").click();
+  $("clearIcon").onclick = () => { state.iconImage = null; $("clearIcon").classList.add("hidden"); drawIcon(); };
+  $("iconInput").onchange = (e) => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    const img = new Image();
+    img.onload = () => { state.iconImage = img; $("clearIcon").classList.remove("hidden"); drawIcon(); };
+    img.onerror = () => showError("formError", "That icon image could not be read.");
+    img.src = URL.createObjectURL(file);
+  };
+
+  function textColorFor(hex) {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.6 ? "#15181c" : "#ffffff";
+  }
+
+  function drawIcon() {
+    const c = $("iconCanvas"), ctx = c.getContext("2d"), size = c.width;
+    ctx.clearRect(0, 0, size, size);
+    if (state.iconImage) {
+      const img = state.iconImage, scale = Math.max(size / img.naturalWidth, size / img.naturalHeight);
+      const w = img.naturalWidth * scale, h = img.naturalHeight * scale;
+      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+      return;
+    }
+    const color = $("themeColor").value;
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, size, size);
+    const letter = ([...$("appName").value.trim()][0] || "A").toUpperCase();
+    ctx.fillStyle = textColorFor(color);
+    ctx.font = `600 ${size * 0.55}px Inter, system-ui, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(letter, size / 2, size / 2 + size * 0.03);
+  }
+  document.fonts?.ready.then(drawIcon);
+  drawIcon();
+
+  // ----- build -----
+  $("form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideError("formError");
+    let payload;
+    try {
+      payload = await buildPayload();
+    } catch (err) {
+      return showError("formError", err.message);
+    }
+    $("buildBtn").disabled = true;
+    startProgress(payload.appName);
+    try {
+      const res = await fetch("/api/build", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || (res.status === 413 ? "Your files are too large." : `Upload failed (${res.status}).`));
+      store.set({ id: data.id, name: payload.appName, startedAt: state.startedAt });
+      setStep("queued");
+      pollStatus(data.id, payload.appName);
+    } catch (err) {
+      failBuild(err.message);
+    } finally {
+      $("buildBtn").disabled = false;
+    }
+  });
+
+  async function buildPayload() {
+    const appName = $("appName").value.trim();
+    if (!appName) throw new Error("Enter an app name.");
+    const packageId = $("packageId").value.trim();
+    if (!/^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/.test(packageId)) throw new Error("Package ID must look like com.company.app (letters and numbers, separated by dots).");
+    const versionName = $("versionName").value.trim() || "1.0.0";
+    if (!/^[0-9A-Za-z][0-9A-Za-z._-]{0,29}$/.test(versionName)) throw new Error("Version name must look like 1.0.0.");
+    const versionCode = parseInt($("versionCode").value, 10) || 1;
+    const themeColor = $("themeColor").value;
+
+    const payload = {
+      appName, packageId, versionName, versionCode, themeColor,
+      iconBackground: state.iconImage ? "#FFFFFF" : themeColor,
+      icon: $("iconCanvas").toDataURL("image/png").split(",")[1],
+      accessCode: $("accessCode").value || undefined,
+      mode: state.mode === "url" ? "url" : "html",
+    };
+
+    if (state.mode === "url") {
+      let url = $("urlInput").value.trim();
+      if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+      try { new URL(url); } catch { throw new Error("Enter your website address, like https://example.com"); }
+      payload.url = url;
+      return payload;
+    }
+
+    let zipBytes;
+    if (state.mode === "paste") {
+      const html = $("htmlInput").value;
+      if (!html.trim()) throw new Error("Paste your HTML code first.");
+      const zip = new JSZip();
+      zip.file("index.html", html);
+      zipBytes = await zip.generateAsync({ type: "uint8array", compression: "DEFLATE", compressionOptions: { level: 9 } });
+    } else {
+      if (!state.files.length) throw new Error("Add your website files first.");
+      if (state.files.length === 1 && /\.zip$/i.test(state.files[0].path)) {
+        zipBytes = new Uint8Array(await state.files[0].file.arrayBuffer());
+      } else {
+        if (!state.files.some((f) => /\.html?$/i.test(f.path))) throw new Error("Your files need at least one .html page.");
+        const zip = new JSZip();
+        for (const f of state.files) zip.file(f.path, f.file);
+        zipBytes = await zip.generateAsync({ type: "uint8array", compression: "DEFLATE", compressionOptions: { level: 9 } });
+      }
+    }
+    if (zipBytes.length > state.maxSiteBytes) {
+      throw new Error(`Your website is ${formatBytes(zipBytes.length)} after compression; the limit is ${formatBytes(state.maxSiteBytes)}. Try compressing images, or host the site and use the Website URL option.`);
+    }
+    payload.site = await toBase64(zipBytes);
+    return payload;
+  }
+
+  function toBase64(bytes) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(",")[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(new Blob([bytes]));
+    });
+  }
+
+  // ----- progress -----
+  const ORDER = ["upload", "queued", "building", "done"];
+  function startProgress(name, startedAt) {
+    state.startedAt = startedAt || Date.now();
+    $("form").classList.add("hidden");
+    $("progress").classList.add("show");
+    $("progressTitle").textContent = `Building “${name}”`;
+    $("result").classList.remove("show");
+    $("logsLink").classList.add("hidden");
+    hideError("buildError");
+    setStep("upload");
+    clearInterval(state.timer);
+    state.timer = setInterval(tick, 1000);
+    tick();
+  }
+  function tick() {
+    const s = Math.round((Date.now() - state.startedAt) / 1000);
+    $("elapsed").textContent = `Elapsed ${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")} · usually takes 2–4 minutes`;
+  }
+  function setStep(step, failed) {
+    const idx = ORDER.indexOf(step);
+    document.querySelectorAll(".steps li").forEach((li) => {
+      const i = ORDER.indexOf(li.dataset.step);
+      li.className = i < idx || (step === "done" && i === idx) ? "done" : i === idx ? (failed ? "failed" : "active") : "";
+    });
+  }
+  function failBuild(message, logsUrl) {
+    clearTimeout(state.poll);
+    clearInterval(state.timer);
+    const current = document.querySelector(".steps li.active");
+    if (current) current.className = "failed";
+    showError("buildError", message);
+    $("progressTitle").textContent = "Build failed";
+    if (logsUrl) { $("logsLink").href = logsUrl; $("logsLink").classList.remove("hidden"); }
+    store.set(null);
+  }
+
+  async function pollStatus(id, name) {
+    let data;
+    try {
+      const res = await fetch(`/api/status?id=${encodeURIComponent(id)}`, { cache: "no-store" });
+      data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not check the build status.");
+    } catch (err) {
+      state.poll = setTimeout(() => pollStatus(id, name), 8000);
+      return;
+    }
+    if (data.logsUrl) { $("logsLink").href = data.logsUrl; $("logsLink").classList.remove("hidden"); }
+    if (data.state === "failed") return failBuild(data.error, data.logsUrl);
+    if (data.state === "done") return showResult(data, name);
+    setStep(data.state === "building" ? "building" : "queued");
+    if (Date.now() - state.startedAt > 25 * 60 * 1000) return failBuild("The build is taking too long. Please try again.", data.logsUrl);
+    state.poll = setTimeout(() => pollStatus(id, name), 5000);
+  }
+
+  function showResult(data, name) {
+    clearInterval(state.timer);
+    setStep("done");
+    $("progressTitle").textContent = `“${name}” is ready`;
+    const link = $("downloadLink");
+    link.href = data.downloadUrl;
+    $("apkMeta").textContent = `${formatBytes(data.size)} · link valid for 24 hours`;
+    const qr = qrcode(0, "M");
+    qr.addData(data.downloadUrl);
+    qr.make();
+    $("qr").innerHTML = qr.createImgTag(4, 0, "QR code for the APK download");
+    $("result").classList.add("show");
+    $("elapsed").textContent = `Built in ${Math.max(1, Math.round((Date.now() - state.startedAt) / 60000))} min`;
+    store.set(null);
+  }
+
+  $("newBuild").onclick = () => {
+    clearTimeout(state.poll);
+    clearInterval(state.timer);
+    store.set(null);
+    $("progress").classList.remove("show");
+    $("form").classList.remove("hidden");
+  };
+
+  // Resume a build that was running when the page was closed or refreshed.
+  const saved = store.get();
+  if (saved && saved.id && Date.now() - saved.startedAt < 30 * 60 * 1000) {
+    startProgress(saved.name, saved.startedAt);
+    setStep("queued");
+    pollStatus(saved.id, saved.name);
+  }
+
+  function showError(id, message) { const el = $(id); el.textContent = message; el.classList.add("show"); }
+  function hideError(id) { $(id).classList.remove("show"); }
+  function formatBytes(n) {
+    if (n < 1024) return `${n} B`;
+    if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
+    return `${(n / 1024 / 1024).toFixed(1)} MB`;
+  }
+})();
+</script>
+</body>
+</html>
