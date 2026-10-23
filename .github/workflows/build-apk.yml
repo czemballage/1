@@ -118,6 +118,17 @@ jobs:
           name: sample-apk
           path: ${{ steps.apk.outputs.path }}
 
+      # Keep a permanent public download of the repo's own site as an app.
+      - name: Publish CZ Emballage app
+        if: env.IS_REQUEST != 'true'
+        run: |
+          cp "${{ steps.apk.outputs.path }}" "$RUNNER_TEMP/CZ-Emballage.apk"
+          gh release delete app-czemballage --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes || true
+          gh release create app-czemballage "$RUNNER_TEMP/CZ-Emballage.apk" \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+            --title "CZ Emballage Android app" \
+            --notes "Android app built from index.html. Download CZ-Emballage.apk and open it on your phone to install."
+
       - name: Delete build branch
         if: always() && env.IS_REQUEST == 'true'
         run: gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$GITHUB_REF_NAME" || true
