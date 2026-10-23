@@ -46,8 +46,10 @@ jobs:
             dir="$RUNNER_TEMP/sample-input"
             mkdir -p "$dir"
             zip -j -q "$dir/site.zip" index.html
-            cat > "$dir/build.json" <<'JSON'
-          {"appName":"CZ Emballage","packageId":"com.czemballage.app","versionName":"1.0","versionCode":1,"mode":"html","themeColor":"#FFFFFF"}
+            cp apk-builder/branding/czemballage/icon-512.png "$dir/icon.png"
+            # Every run gets a higher version code, so each AAB can be uploaded to Google Play.
+            cat > "$dir/build.json" <<JSON
+          {"appName":"CZ Emballage","packageId":"com.czemballage.app","versionName":"1.0.$GITHUB_RUN_NUMBER","versionCode":$GITHUB_RUN_NUMBER,"mode":"html","themeColor":"#1A1A1A","iconBackground":"#1A1A1A"}
           JSON
             echo "id=sample" >> "$GITHUB_OUTPUT"
             echo "dir=$dir" >> "$GITHUB_OUTPUT"
@@ -64,7 +66,7 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.11.1"
+          gradle-version: "8.14.3"
 
       - name: Prepare Android project
         run: node apk-builder/scripts/prepare.mjs "${{ steps.input.outputs.dir }}" apk-builder/android
@@ -91,7 +93,7 @@ jobs:
           echo "APK_KEYSTORE=$ks" >> "$GITHUB_ENV"
 
       - name: Build APK
-        run: gradle -p apk-builder/android --no-daemon assembleRelease
+        run: gradle -p apk-builder/android --no-daemon assembleRelease bundleRelease
 
       - name: Collect APK
         id: apk
@@ -123,11 +125,12 @@ jobs:
         if: env.IS_REQUEST != 'true'
         run: |
           cp "${{ steps.apk.outputs.path }}" "$RUNNER_TEMP/CZ-Emballage.apk"
+          cp apk-builder/android/app/build/outputs/bundle/release/app-release.aab "$RUNNER_TEMP/CZ-Emballage.aab"
           gh release delete app-czemballage --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes || true
-          gh release create app-czemballage "$RUNNER_TEMP/CZ-Emballage.apk" \
+          gh release create app-czemballage "$RUNNER_TEMP/CZ-Emballage.apk" "$RUNNER_TEMP/CZ-Emballage.aab" \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
-            --title "CZ Emballage Android app" \
-            --notes "Android app built from index.html. Download CZ-Emballage.apk and open it on your phone to install."
+            --title "CZ Emballage Android app (version code $GITHUB_RUN_NUMBER)" \
+            --notes "Built from index.html. CZ-Emballage.apk installs directly on a phone. CZ-Emballage.aab is the Google Play bundle; sign it with your upload key before uploading."
 
       - name: Delete build branch
         if: always() && env.IS_REQUEST == 'true'

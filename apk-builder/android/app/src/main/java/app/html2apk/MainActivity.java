@@ -102,6 +102,21 @@ public class MainActivity extends Activity {
         } else {
             webView.loadUrl(startUrl);
         }
+
+        // Android 13+ delivers the back gesture through OnBackInvokedDispatcher; from
+        // targetSdk 36 onBackPressed() is no longer called at all.
+        if (Build.VERSION.SDK_INT >= 33) {
+            getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+                    android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::handleBack);
+        }
+    }
+
+    private void handleBack() {
+        if (webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            finish();
+        }
     }
 
     private int dp(int value) {
@@ -223,11 +238,7 @@ public class MainActivity extends Activity {
     @Override
     @SuppressWarnings("deprecation")
     public void onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack();
-        } else {
-            super.onBackPressed();
-        }
+        handleBack(); // Android 12 and older
     }
 
     @Override
